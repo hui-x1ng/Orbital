@@ -6,12 +6,13 @@ const userDisplay = document.getElementById('userDisplay');
 const petDisplay = document.getElementById('petDisplay');
 const petName = document.getElementById('pet-name');
 const petHp = document.getElementById('pet-hp');
-const petHunger = document.getElementById('pet-hunger');
+const petIntimacy = document.getElementById('pet-intimacy');
 const feedBtn = document.getElementById('feed-btn');
+const petList = document.getElementById('petList');
 
 let currentUser = '';
 let currentPet = null;
-let hungerInterval = null;
+let intInterval = null;
 
 loginBtn.addEventListener('click', async () => {
     const username = document.getElementById('username').value.trim();
@@ -40,12 +41,18 @@ document.getElementById('generatePetBtn').addEventListener('click', async () => 
         const petName = 'cat';
         await window.electronAPI.generatePet(currentUser, petName);
         await loadPet();
-        startHungerLoop();
-        window.electronAPI.openPetWindow();
     } catch (err) {
         alert('Failed to generate pet: ' + err);
     }
 });
+
+document.getElementById('callPetBtn').addEventListener('click', async () => {
+    try {
+        await loadPet();
+    } catch (err) {
+        alert('Failed to call out pet: ' + err);
+    }
+})
 
 document.getElementById('killPetBtn').addEventListener('click', () => {
     alert("Your pet died");
@@ -55,27 +62,60 @@ document.getElementById('killPetBtn').addEventListener('click', () => {
 feedBtn.addEventListener('click', feedPet);
 
 function killPet() {
-    if (hungerInterval) {
-        clearInterval(hungerInterval);
-        hungerInterval = null;
+    if (intInterval) {
+        clearInterval(intInterval);
+        intInterval = null;
     }
     if (currentPet) {
+        alert(currentPet.id + "died.")
         window.electronAPI.closePetWindow();
+        window.electronAPI.killPet(currentPet.id);
     }
     currentPet = null;
 }
 
 function isDead() {
-    return !currentPet || currentPet.hunger >= 100 || currentPet.hp <= 0;
+    return !currentPet || currentPet.is_dead;
 }
 
+//gets first pet that is not dead from db
 async function loadPet() {
     try {
         const pets = await window.electronAPI.getPets(currentUser);
-        currentPet = pets.find(pet => pet.hp > 0 && pet.hunger < 100);
-        renderPetData();
+        console.log(pets);
+        currentPet = pets.find(pet => !pet.is_dead);
+        console.log(currentPet);
+        if (currentPet) {
+            renderPetData();
+            window.electronAPI.openPetWindow();
+            startIntimacyLoop();
+        }
     } catch (err) {
         console.error('Failed to load pet:', err);
+    }
+}
+
+async function loadAllPets() {
+    try {
+        const pets = await window.electronAPI.getPets(currentUser);
+        petList.innerHTML = '';
+        pets.forEach(pet => {
+            const petItem = document.createElement('div');
+            petItem.classList.add('pet-item');
+            petItem.innerHTML = `
+                <strong>${pet.name}</strong><br>
+                HP: ${pet.hp}<br>
+                Hunger: ${pet.hunger}
+            `;
+            petItem.addEventListener('click', () => {
+                currentPet = pet;
+                renderPetData();
+                window.electronAPI.openPetWindow();
+            });
+            petList.appendChild(petItem);
+        });
+    } catch (err) {
+        console.error('Failed to load all pets:', err);
     }
 }
 
@@ -83,31 +123,33 @@ function renderPetData() {
     if (!currentPet) return;
     petName.textContent = currentPet.name;
     petHp.textContent = `HP: ${currentPet.hp}`;
-    petHunger.textContent = `Hunger: ${currentPet.hunger}`;
+    petIntimacy.textContent = `Intimacy: ${currentPet.intimacy}`;
     petDisplay.classList.remove('hidden');
 }
 
 async function feedPet() {
     if (!currentPet) return;
-    currentPet.hunger = Math.max(0, currentPet.hunger - 10);
-    await window.electronAPI.updatePetHunger(currentPet.id, currentPet.hunger);
+    currentPet.intimacy = Math.min(100, currentPet.intimacy + 0.1);
+    console.log(currentPet.intimacy);
+    await window.electronAPI.updatePetIntimacy(currentPet.id, currentPet.intimacy);
     renderPetData();
 }
 
-function startHungerLoop() {
-    if (hungerInterval) clearInterval(hungerInterval);
+function startIntimacyLoop() {
+    if (intInterval) clearInterval(intInterval);
 
-    hungerInterval = setInterval(async () => {
+    intInterval = setInterval(async () => {
         if (!currentPet) return;
-        currentPet.hunger = Math.min(100, currentPet.hunger + 5);
+        console.log(currentPet);
+        currentPet.intimacy = Math.min(100, currentPet.intimacy + 0.1);
         if (isDead()) {
             alert("Your pet died");
             killPet();
-            clearInterval(hungerInterval);
-            hungerInterval = null;
+            clearInterval(intInterval);
+            intInterval = null;
             return;
         }
-        await window.electronAPI.updatePetHunger(currentPet.id, currentPet.hunger);
+        await window.electronAPI.updatePetIntimacy(currentPet.id, currentPet.intimacy);
         renderPetData();
-    }, 600);
+    }, 60000);
 }

@@ -17,13 +17,23 @@
             <h1>Hello <span id="userDisplay"></span></h1>
             <button id="generatePetBtn">generate your pet</button>
             <button id="killPetBtn">kill it</button>
-
+            <button id="callPetBtn">call out your pet!</button>
             <div id="petDisplay" class="hidden">
                 <h3 id="pet-name">Your Pet</h3>
                 <p id="pet-hp">HP: </p>
-                <p id="pet-hunger">Hunger: </p>
+                <p id="pet-intimacy">Intimacy: </p>
+                <p>Try touching your pet</p>
                 <button id="feed-btn">Feed</button>
             </div>
+            
+        </div>
+        <div id="sidebar" class="hidden">
+            <h3>Your Pets</h3>
+            <div id="petList"></div>
+        </div>
+        <div id="sidebar" class="hidden">
+            <h2>Badges</h2>
+            <div id="achievements"></div>
         </div>
 
         <script src="renderer.js"></script>

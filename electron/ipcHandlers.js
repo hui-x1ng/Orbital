@@ -11,14 +11,18 @@ ipcMain.handle('create-pet', (event, { ownerId, name }) => {
 });
 
 ipcMain.handle('get-pets', async (_, username) => {
-    return await db.getPetsByUser(username);
+    return db.getPetsByUser(username);
 });
 
-ipcMain.handle('update-pet-hunger', async (_, { petId, newHunger }) => {
-    return await db.updateHunger(petId, newHunger);
+ipcMain.handle('update-pet-hp', async (_, { petId, newHp }) => {
+    return db.updateHp(petId, newHp);
 });
 
-ipcMain.handle('delete-pet', (event, petId) => {
-    db.deletePet(petId);  
+ipcMain.handle('update-pet-intimacy', async (_, { petId, newInt }) => {
+    return db.updateIntimacy(petId, newInt);
+});
+
+ipcMain.handle('kill-pet', (_, petId) => {
+    db.killPet(petId);  
 });
 
