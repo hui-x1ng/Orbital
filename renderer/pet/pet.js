@@ -3,8 +3,8 @@ console.log("pet.js is loaded");
 class Pet {
     constructor(imgElement) {
       this.img = imgElement;
-      this.defaultSrc = '../assets/cat.png';
-      this.happySrc = '../assets/happycat.png';
+      this.defaultSrc = '../../assets/cat.png';
+      this.happySrc = '../../assets/happycat.png';
       this.isReacting = false;
     }
   
