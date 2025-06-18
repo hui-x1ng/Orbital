@@ -44,14 +44,27 @@ function getPetsByUser(ownerId) {
   return stmt.all(ownerId);
 }
 
-function updateHp(petId, newHp) {
-  const stmt = db.prepare(`UPDATE pets SET hp = ? WHERE id = ?`);
-  stmt.run(newHp, petId);
-}
+// function updateHp(petId, newHp) {
+//   const stmt = db.prepare(`UPDATE pets SET hp = ? WHERE id = ?`);
+//   stmt.run(newHp, petId);
+// }
 
-function updateIntimacy(petId, newInt) {
-  const stmt = db.prepare(`UPDATE pets SET intimacy = ? WHERE id = ?`);
-  stmt.run(newInt, petId);
+function updatePetStats(petId, updates) {
+  const fields = [];
+  const values = [];
+
+  for (const key in updates) {
+    fields.push(`${key} = ?`);
+    values.push(updates[key]);
+  }
+
+  const stmt = db.prepare(`
+    UPDATE pets
+    SET ${fields.join(', ')}
+    WHERE id = ?
+  `);
+
+  stmt.run(...values, petId);
 }
 
 function deletePet(petId) {
@@ -68,7 +81,6 @@ module.exports = {
   createUser,
   createPet,
   getPetsByUser,
-  updateHp,
-  updateIntimacy,
+  updatePetStats,
   killPet,
 };

@@ -14,12 +14,16 @@ ipcMain.handle('get-pets', async (_, username) => {
     return db.getPetsByUser(username);
 });
 
-ipcMain.handle('update-pet-hp', async (_, { petId, newHp }) => {
-    return db.updateHp(petId, newHp);
-});
+// ipcMain.handle('update-pet-hp', async (_, { petId, newHp }) => {
+//     return db.updateHp(petId, newHp);
+// });
 
-ipcMain.handle('update-pet-intimacy', async (_, { petId, newInt }) => {
-    return db.updateIntimacy(petId, newInt);
+ipcMain.handle('update-pet-stats', (_, {newPet}) => {
+    return db.updatePetStats(newPet.id, {
+        age: newPet.age,
+        hp: newPet.hp,
+        intimacy: newPet.intimacy
+    });
 });
 
 ipcMain.handle('kill-pet', (_, petId) => {

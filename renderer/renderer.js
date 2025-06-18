@@ -1,20 +1,40 @@
-const loginBtn = document.getElementById('loginBtn');
-const loginContainer = document.getElementById('loginContainer');
-const mainContainer = document.getElementById('mainContainer');
-const userDisplay = document.getElementById('userDisplay');
+import * as behaviors from '../modules/petBehaviors.js';
+import * as petManager from '../modules/petManager.js';
+import * as ui from '../modules/uiRenderer.js';
 
-const petDisplay = document.getElementById('petDisplay');
-const petName = document.getElementById('pet-name');
-const petHp = document.getElementById('pet-hp');
-const petIntimacy = document.getElementById('pet-intimacy');
-const feedBtn = document.getElementById('feed-btn');
-const petList = document.getElementById('petList');
+const electronAPI = window.electronAPI;
 
 let currentUser = '';
 let currentPet = null;
 let intInterval = null;
 
-loginBtn.addEventListener('click', async () => {
+const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+const sidebarContainer = document.getElementById("sidebarContainer");
+const loginContainer = document.getElementById("loginContainer");
+const app = document.getElementById("app");
+const userDisplay = document.getElementById("userDisplay");
+const overlay = document.getElementById("overlay");
+const mainContainer = document.getElementById("mainContainer");
+
+toggleSidebarBtn.addEventListener('click', () => {
+    const isActive = sidebarContainer.classList.contains('active');
+    
+    if (isActive) {
+        sidebarContainer.classList.remove('active');
+        toggleSidebarBtn.classList.remove('moved');
+        overlay.classList.remove('active');
+        mainContainer.classList.remove('shifted');
+    } else {
+        sidebarContainer.classList.add('active');
+        toggleSidebarBtn.classList.add('moved');
+        overlay.classList.add('active');
+        mainContainer.classList.add('shifted');
+    }
+});
+
+//dummy login
+document.getElementById("loginBtn").addEventListener('click', async () => {
+    // alert("logged in");
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
 
@@ -28,7 +48,12 @@ loginBtn.addEventListener('click', async () => {
             currentUser = username;
             userDisplay.textContent = username;
             loginContainer.classList.add('hidden');
-            mainContainer.classList.remove('hidden');
+            document.getElementById("loginWrapper").classList.add('hidden');
+            document.getElementById("mainContainer").classList.remove('hidden');
+            // document.getElementById("app").classList.remove('hidden');
+            toggleSidebarBtn.classList.remove('hidden');
+            sidebarContainer.classList.remove('hidden');
+            // app.classList.remove('centered-container');
             // loadPet();
         } catch (err) {
             console.log(err);
@@ -36,120 +61,99 @@ loginBtn.addEventListener('click', async () => {
     }
 });
 
-document.getElementById('generatePetBtn').addEventListener('click', async () => {
+document.querySelectorAll('#sidebar button[data-page]').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        const page = e.target.getAttribute('data-page');
+        console.log(page);
+        
+        try {
+            const mainContent = document.querySelector('#mainContainer .card-content') || mainContainer;
+            let response;
+            if (page === 'home') {
+                response = await fetch(`./index.html`);
+            } else {
+                response = await fetch(`./pages/${page}.html`);
+            }
+            if (!response.ok) {
+                throw new Error(`Failed to load ${page}.html`);
+            }
+            const html = await response.text();
+            mainContent.innerHTML = html;
+        } catch (error) {
+            console.error('Failed to load page:', error);
+        } finally {
+            closeSidebar();
+        }
+    });
+});
+
+function closeSidebar() {
+    sidebarContainer.classList.remove('active');
+    toggleSidebarBtn.classList.remove('moved');
+    overlay.classList.remove('active');
+    mainContainer.classList.remove('shifted');
+}
+
+document.getElementById('generatePetBtn').addEventListener('click', () => {
+    const input = document.getElementById('petNameInput');
+    document.getElementById('petNameContainer').classList.remove('hidden');
+    setTimeout(() => input.focus(), 50);
+});
+
+document.getElementById('confirmPetNameBtn').addEventListener('click', async () => {
+    const name = document.getElementById('petNameInput').value.trim();
+    if (!name) return alert('Please enter a name.');
+
     try {
-        const petName = 'cat';
-        await window.electronAPI.generatePet(currentUser, petName);
-        await loadPet();
+        const pet = await petManager.createPet(electronAPI, currentUser, name);
+        document.getElementById('petNameContainer').classList.add('hidden');
+        ui.renderPet(pet);
+        electronAPI.openPetWindow();
+        startIntimacyLoop();
     } catch (err) {
-        alert('Failed to generate pet: ' + err);
+        console.log(err);
+        petNameInput.focus();
     }
 });
 
+
 document.getElementById('callPetBtn').addEventListener('click', async () => {
-    try {
-        await loadPet();
-    } catch (err) {
-        alert('Failed to call out pet: ' + err);
+    const pet = await petManager.loadPet(electronAPI, currentUser);
+    if (pet) {
+        ui.renderPet(pet);
+        electronAPI.openPetWindow();
+        startIntimacyLoop();
     }
 })
 
-document.getElementById('killPetBtn').addEventListener('click', () => {
-    alert("Your pet died");
-    killPet();
+document.getElementById('killPetBtn').addEventListener('click', killPet);
+
+document.getElementById('feed-btn').addEventListener('click', async () => {
+    if (!petManager.currentPet) return;
+    const updated = behaviors.feed(petManager.currentPet);
+    await electronAPI.updatePetStats(updated);
+    ui.renderPet(petManager.currentPet);
 });
 
-feedBtn.addEventListener('click', feedPet);
 
 function killPet() {
-    if (intInterval) {
-        clearInterval(intInterval);
-        intInterval = null;
-    }
-    if (currentPet) {
-        alert(currentPet.id + "died.")
-        window.electronAPI.closePetWindow();
-        window.electronAPI.killPet(currentPet.id);
-    }
-    currentPet = null;
-}
-
-function isDead() {
-    return !currentPet || currentPet.is_dead;
-}
-
-//gets first pet that is not dead from db
-async function loadPet() {
-    try {
-        const pets = await window.electronAPI.getPets(currentUser);
-        console.log(pets);
-        currentPet = pets.find(pet => !pet.is_dead);
-        console.log(currentPet);
-        if (currentPet) {
-            renderPetData();
-            window.electronAPI.openPetWindow();
-            startIntimacyLoop();
-        }
-    } catch (err) {
-        console.error('Failed to load pet:', err);
-    }
-}
-
-async function loadAllPets() {
-    try {
-        const pets = await window.electronAPI.getPets(currentUser);
-        petList.innerHTML = '';
-        pets.forEach(pet => {
-            const petItem = document.createElement('div');
-            petItem.classList.add('pet-item');
-            petItem.innerHTML = `
-                <strong>${pet.name}</strong><br>
-                HP: ${pet.hp}<br>
-                Hunger: ${pet.hunger}
-            `;
-            petItem.addEventListener('click', () => {
-                currentPet = pet;
-                renderPetData();
-                window.electronAPI.openPetWindow();
-            });
-            petList.appendChild(petItem);
-        });
-    } catch (err) {
-        console.error('Failed to load all pets:', err);
-    }
-}
-
-function renderPetData() {
-    if (!currentPet) return;
-    petName.textContent = currentPet.name;
-    petHp.textContent = `HP: ${currentPet.hp}`;
-    petIntimacy.textContent = `Intimacy: ${currentPet.intimacy}`;
-    petDisplay.classList.remove('hidden');
-}
-
-async function feedPet() {
-    if (!currentPet) return;
-    currentPet.intimacy = Math.min(100, currentPet.intimacy + 0.1);
-    console.log(currentPet.intimacy);
-    await window.electronAPI.updatePetIntimacy(currentPet.id, currentPet.intimacy);
-    renderPetData();
+    if (intInterval) clearInterval(intInterval);
+    electronAPI.closePetWindow();
+    electronAPI.killPet(petManager.currentPet.id);
+    document.getElementById('petDisplay').classList.add('hidden');
+    alert(petManager.currentPet.name + " died.");
 }
 
 function startIntimacyLoop() {
     if (intInterval) clearInterval(intInterval);
 
     intInterval = setInterval(async () => {
-        if (!currentPet) return;
-        console.log(currentPet);
-        currentPet.intimacy = Math.min(100, currentPet.intimacy + 0.1);
-        if (isDead()) {
-            alert("Your pet died");
+        if (petManager.isDead()) {
             killPet();
-            clearInterval(intInterval);
-            intInterval = null;
             return;
         }
-        await window.electronAPI.updatePetIntimacy(currentPet.id, currentPet.intimacy);
-        renderPetData();
+        behaviors.tick(petManager.currentPet);
+        await petManager.updateStats(electronAPI, petManager.currentPet);
+        ui.renderPet(petManager.currentPet);
     }, 60000);
 }
