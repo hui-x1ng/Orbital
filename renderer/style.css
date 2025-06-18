@@ -3,9 +3,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #667eea, #764ba2);
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     color: #fff;
   }
   
@@ -19,6 +17,13 @@ body {
     text-align: center;
     width: 300px;
   }
+
+  .centered-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   
   h1, h2 {
     margin-bottom: 20px;
@@ -31,6 +36,7 @@ body {
     border: none;
     border-radius: 10px;
     font-size: 1rem;
+    box-sizing: border-box;
   }
   
   button {
@@ -59,3 +65,79 @@ body {
     margin-top: 10px;
   }
   
+#app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+#toggleSidebarBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  width: auto;
+  height: auto;
+  padding: 10px 20px;
+  transition: left 0.3s ease;
+}
+
+#toggleSidebarBtn.moved {
+  left: 270px;
+}
+
+#sidebarContainer {
+  position: fixed;
+  top: 0;
+  left: -270px;
+  width: 250px;
+  height: 100%;
+  background-color: rgba(19, 163, 189, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+#sidebarContainer.active {
+  left: 0;
+}
+
+#sidebarContainer.hidden {
+  display: none;
+}
+
+#sidebar button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+
+#mainContainer {
+  flex-grow: 1;
+  padding: 40px;
+  transition: margin-left 0.3s ease;
+}
+
+#mainContainer.shifted {
+  margin-left: 250px;
+}

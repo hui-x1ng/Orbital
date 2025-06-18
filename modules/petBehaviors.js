@@ -1,4 +1,3 @@
-//petbehaviors.js
 export function feed(pet) {
     pet.intimacy = Math.min(pet.intimacy + 0.1, 100);
     return pet;
