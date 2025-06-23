@@ -72,6 +72,11 @@ function deletePet(petId) {
   stmt.run(petId);
 }
 
+function getPet(username, petName) {
+  const stmt = db.prepare('SELECT * FROM pets WHERE owner_id = ? AND name = ?');
+  return stmt.get(username, petName);
+}
+
 function killPet(petId) {
   const stmt = db.prepare('UPDATE pets SET is_dead = true WHERE id = ? AND is_dead = false');
   stmt.run(petId);
@@ -83,4 +88,5 @@ module.exports = {
   getPetsByUser,
   updatePetStats,
   killPet,
+  getPet,
 };

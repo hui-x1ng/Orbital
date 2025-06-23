@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   registerUser: (userData) => ipcRenderer.invoke('create-user', userData),
   generatePet: (username, petName) => ipcRenderer.invoke('create-pet', { ownerId: username, name: petName }),
   getPets: (username) => ipcRenderer.invoke('get-pets', username),
+  getPet: (username, petName) => ipcRenderer.invoke('get-pet', {username: username, petName: petName}),
   updatePetStats: (newPet) => ipcRenderer.invoke('update-pet-stats', {newPet}),
   killPet: (petId) => ipcRenderer.invoke('kill-pet', petId),
   openPetWindow: () => ipcRenderer.send('open-pet-window'),

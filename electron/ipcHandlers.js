@@ -14,9 +14,9 @@ ipcMain.handle('get-pets', async (_, username) => {
     return db.getPetsByUser(username);
 });
 
-// ipcMain.handle('update-pet-hp', async (_, { petId, newHp }) => {
-//     return db.updateHp(petId, newHp);
-// });
+ipcMain.handle('get-pet', async (_, { username, petName }) => {
+    return db.getPet(username, petName);
+});
 
 ipcMain.handle('update-pet-stats', (_, {newPet}) => {
     return db.updatePetStats(newPet.id, {

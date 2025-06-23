@@ -69,6 +69,8 @@ body {
   display: flex;
   height: 100vh;
   width: 100vw;
+  justify-content: center;
+  align-items: center;
 }
 
 #overlay {
@@ -135,9 +137,109 @@ body {
 #mainContainer {
   flex-grow: 1;
   padding: 40px;
+  margin: 0 auto;
   transition: margin-left 0.3s ease;
 }
 
 #mainContainer.shifted {
   margin-left: 250px;
 }
+
+/* Pet gallery */
+
+.pets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.pet-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  text-align: center;
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pet-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pet-image {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.pet-name {
+  color:black;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.pet-status {
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.status-alive {
+  background-color: #e0ffe0;
+  color: #007f00;
+}
+
+.status-deceased {
+  background-color: #ffe0e0;
+  color: #a00000;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color:white;
+  color: black;
+  padding: 30px;
+  border-radius: 10px;
+  min-width: 300px;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.hidden {
+    display: none !important;
+}
+

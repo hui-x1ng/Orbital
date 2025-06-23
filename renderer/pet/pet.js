@@ -1,4 +1,4 @@
-console.log("pet.js is loaded");
+// console.log("pet.js is loaded");
 
 class Pet {
     constructor(imgElement) {
