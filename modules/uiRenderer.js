@@ -3,20 +3,23 @@ export function renderPet(pet) {
     document.getElementById('pet-name').textContent = pet.name;
     document.getElementById('pet-hp').textContent = `HP: ${pet.hp}`;
     document.getElementById('pet-intimacy').textContent = `Intimacy: ${pet.intimacy}`;
+    electronAPI.openPetWindow();
 }
 
-// export function renderPetList(pets, onClickCallback) {
-//     const petList = document.getElementById('petList');
-//     petList.innerHTML = '';
-//     pets.forEach(pet => {
-//         const div = document.createElement('div');
-//         div.className = 'pet-item';
-//         div.innerHTML = `
-//             <strong>${pet.name}</strong><br>
-//             HP: ${pet.hp}<br>
-//             Hunger: ${pet.hunger}
-//         `;
-//         div.addEventListener('click', () => onClickCallback(pet));
-//         petList.appendChild(div);
-//     });
-// }
+export function hidePet() {
+    document.getElementById('petDisplay').classList.add('hidden');
+}
+
+export function showPetNameInput() {
+    document.getElementById('petNameContainer').classList.remove('hidden');
+    setTimeout(() => {
+        const input = document.getElementById('petNameInput');
+        input.focus();
+        input.click();
+    }, 100);
+}
+
+export function hidePetNameInput() {
+    document.getElementById('petNameContainer').classList.add('hidden');
+}
+
