@@ -29,13 +29,14 @@ ipcMain.on('open-pet-window', () => {
     if (petWindow) return;
   
     petWindow = new BrowserWindow({
-      width: 120,
-      height: 100,
+      width: 170,
+      height: 180,
       x: 1100,
       y: 600,
       frame: false,
-      transparent: false,
+      transparent: true,
       alwaysOnTop: true,
+      hasShadow: false,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
