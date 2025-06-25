@@ -11,9 +11,20 @@ export function haveFun(pet) {
 
 // for general passage of time
 export function tick(pet) {
-    pet.intimacy = Math.max(pet.intimacy + 0.005, 0);
+    pet.intimacy = Math.max(pet.intimacy + 0.1, 0);
     return pet;
 }
+
+//low intimacy
+export function beingTouchedLI(pet) {
+    alert('pet is being touched');
+    pet.hp = Math.max(pet.hp - 0.01, 0);
+    pet.intimacy = Math.min(pet.intimacy + 0.1, 100);
+    return pet;
+}
+
+
+
 
 export function sleep(pet) {
     pet.hp = Math.min(pet.hp + 0.5, 100);
