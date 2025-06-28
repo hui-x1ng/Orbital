@@ -6,26 +6,45 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <div id="loginContainer" class="card">
-            <h2>Welcome to tamaCodechi</h2>
-            <input type="text" id="username" placeholder="enter anything" />
-            <input type="password" id="password" placeholder="password is petlover" />
-            <button id="loginBtn">Login</button>
-        </div>
+        <div id="app" class="centered-container">
+            <div id="overlay" class="hidden"></div>
+            <button id="toggleSidebarBtn" class="hidden">Menu</button>
 
-        <div id="mainContainer" class="card hidden">
-            <h1>Hello <span id="userDisplay"></span></h1>
-            <button id="generatePetBtn">generate your pet</button>
-            <button id="killPetBtn">kill it</button>
-
-            <div id="petDisplay" class="hidden">
-                <h3 id="pet-name">Your Pet</h3>
-                <p id="pet-hp">HP: </p>
-                <p id="pet-hunger">Hunger: </p>
-                <button id="feed-btn">Feed</button>
+            <div id="sidebarContainer" class="hidden">
+                <aside id="sidebar">
+                    <button data-page="home">Home</button>
+                    <button data-page="allPets">All Pets</button>
+                    <button data-page="achievements">Achievements</button>
+                    <button data-page="settings">Settings</button>
+                </aside>
             </div>
-        </div>
 
-        <script src="renderer.js"></script>
+            <div id="mainContainer" class="card hidden">
+                <h1>Hello <span id="userDisplay"></span></h1>
+                <button id="generatePetBtn">generate your pet</button>
+                <div id="petNameContainer" class="hidden">
+                    <input id="petNameInput" placeholder="Enter pet name" />
+                    <button id="confirmPetNameBtn">OK</button>
+                    <button id="cancelPetNameBtn">Cancel</button>
+                </div>
+                <button id="callPetBtn">call out your pet!</button>
+                <div id="petDisplay" class="hidden">
+                    <h3 id="pet-name">Your Pet</h3>
+                    <p id="pet-hp">HP: </p>
+                    <p id="pet-intimacy">Intimacy: </p>
+                    <p>Try touching your pet</p>
+                    <button id="feed-btn">Feed</button>
+                    <button id="killPetBtn">kill it</button>
+                </div>
+            </div>
+
+        </div>
+        <script type="module">
+            import { main } from './script/home.js';
+            import { setUpSidebar } from './script/sidebar.js';
+            main();
+            setUpSidebar();
+        </script>   
     </body>
+
 </html>

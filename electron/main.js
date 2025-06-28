@@ -5,6 +5,7 @@ require('./ipcHandlers');
 let mainWindow, petWindow;
 
 function createWindow() {
+    require('../db/sqlite');
     mainWindow = new BrowserWindow({
         width: 600,
         height: 600,
@@ -20,6 +21,7 @@ function createWindow() {
         autoHideMenuBar: true
     });
     mainWindow.loadFile('./renderer/index.html');
+    // mainWindow.loadFile('renderer/pet/pet.html');
     mainWindow.webContents.openDevTools();
 }
 
@@ -27,21 +29,21 @@ ipcMain.on('open-pet-window', () => {
     if (petWindow) return;
   
     petWindow = new BrowserWindow({
-      width: 400,
-      height: 400,
-      x: 1100,
-      y: 600,
+      width: 120,
+      height: 100,
+      x: 550,
+      y: 300,
       frame: false,
-      transparent: true,
+      transparent: false,
       alwaysOnTop: true,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, 'electron', 'preload.js'),
+        preload: path.join(__dirname, 'preload.js'),
       }
     });
   
-    petWindow.loadFile('renderer/pet.html');
+    petWindow.loadFile('./renderer/pet/pet.html');
     // petWindow.webContents.openDevTools();
   
     petWindow.on('closed', () => {
