@@ -9,7 +9,7 @@ export async function main() {
     let intInterval = null;
     const electronAPI = window.electronAPI;
     const user = userManager.loadUser();
-    const currentPet = null;
+    let currentPet = null;
     if (!user) {
         window.location.href = './pages/login.html';
         return;
@@ -31,10 +31,10 @@ export async function main() {
         const petName = document.getElementById('petNameInput').value.trim();
         console.log(petName);
         try {
-            await petManager.createPet(electronAPI, user.username, petName);
+            currentPet = await petManager.createPet(electronAPI, user.username, petName);
             window.electronAPI.signalPetAnimation('appear');
             uiManager.hidePetNameInput();
-            uiManager.renderPet(petManager.loadPet(electronAPI, user.username));
+            uiManager.renderPet(currentPet);
             startIntimacyLoop();
         } catch(err) {
             console.error('pet failed to generate: ' + err);
@@ -46,33 +46,53 @@ export async function main() {
     });
 
     document.getElementById('callPetBtn').addEventListener('click', async () => {
-        const pet = await petManager.loadPet(electronAPI, user.username);
-        if (pet) {
+        if (currentPet) {
             setTimeout(() => {
                 window.electronAPI.signalPetAnimation('appear');
                 }, 300);
             uiManager.renderPet(pet);
             startIntimacyLoop();
         } else {
-            console.error("You don't have a pet yet!");
-        }
-    });
+            try {
+                if (!user) {
+                    console.error('No user logged in.');
+                    return;
+                }
+                const loadedPet = await petManager.loadPet(electronAPI, user.username);
+                if (loadedPet) {
+                    currentPet = loadedPet;
+                    setTimeout(() => {
+                        window.electronAPI.signalPetAnimation('appear');
+                        }, 300);
+                    uiManager.renderPet(currentPet);
+                    startIntimacyLoop();
+                } else {
+                    console.error("You don't have a pet yet!");
+                }
+            } catch (err) {
+                console.error("Failed to call pet: " + err);
+            }
+    }
+});
 
     document.getElementById('feed-btn').addEventListener('click', async () => {
-        const pet = await petManager.loadPet(electronAPI, user.username);
-        if (!pet) return;
-        const updated = behaviors.feed(pet);
-        // console.log(updated);
-        await electronAPI.updatePetStats(updated);
-        window.electronAPI.signalPetAnimation('feed');
-        uiManager.renderPet(await petManager.loadPet(electronAPI, user.username));
+        try{
+            const updated = behaviors.feed(currentPet);
+            // console.log(updated);
+            await electronAPI.updatePetStats(updated);
+            window.electronAPI.signalPetAnimation('feed');
+            uiManager.renderPet(await currentPet);
+        } catch (err) {
+            console.error('failed to feed pet: ' +err);
+        }
+
     });
 
     document.getElementById('killPetBtn').addEventListener('click', async () => {
         if (intInterval) clearInterval(intInterval);
-        const pet = await petManager.loadPet(electronAPI, user.username);
         electronAPI.closePetWindow();
-        electronAPI.killPet(pet.id);
+        electronAPI.killPet(currentPet.id);
+        currentPet = null;
         uiManager.hidePet();
         // console.log(pet.name + " died.");
     });
@@ -81,11 +101,10 @@ export async function main() {
         if (intInterval) clearInterval(intInterval);
     
         intInterval = setInterval(async () => {
-            if (petManager.isDead()) {
+            if (currentPet.is_dead == 1) {
                 return;
             }
-            const pet = await petManager.loadPet(electronAPI, user.username);
-            const updated = behaviors.tick(pet);
+            const updated = behaviors.tick(currentPet);
             await petManager.updateStats(electronAPI, updated);
             uiManager.renderPet(updated);
         }, 60000);

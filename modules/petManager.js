@@ -21,11 +21,11 @@ export async function loadAllPets(electronAPI, username) {
 
 export async function createPet(electronAPI, username, petName) {
     await electronAPI.generatePet(username, petName);
-    return await loadPet(electronAPI, username);
+    return await getPetByName(electronAPI, username, petName);
 }
 
 export function isDead() {
-    return !currentPet || currentPet.is_dead;
+    return currentPet.is_dead;
 }
 
 export async function updateStats(electronAPI, newPet) {
