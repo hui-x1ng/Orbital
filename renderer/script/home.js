@@ -9,6 +9,7 @@ export async function main() {
     let intInterval = null;
     const electronAPI = window.electronAPI;
     const user = userManager.loadUser();
+    const currentPet = null;
     if (!user) {
         window.location.href = './pages/login.html';
         return;
@@ -31,6 +32,7 @@ export async function main() {
         console.log(petName);
         try {
             await petManager.createPet(electronAPI, user.username, petName);
+            window.electronAPI.signalPetAnimation('appear');
             uiManager.hidePetNameInput();
             uiManager.renderPet(petManager.loadPet(electronAPI, user.username));
             startIntimacyLoop();
@@ -45,8 +47,10 @@ export async function main() {
 
     document.getElementById('callPetBtn').addEventListener('click', async () => {
         const pet = await petManager.loadPet(electronAPI, user.username);
-        // console.log(pet);
         if (pet) {
+            setTimeout(() => {
+                window.electronAPI.signalPetAnimation('appear');
+                }, 300);
             uiManager.renderPet(pet);
             startIntimacyLoop();
         } else {
@@ -55,21 +59,22 @@ export async function main() {
     });
 
     document.getElementById('feed-btn').addEventListener('click', async () => {
-        const pet = await petManager.loadPet();
+        const pet = await petManager.loadPet(electronAPI, user.username);
         if (!pet) return;
         const updated = behaviors.feed(pet);
-        console.log(updated);
+        // console.log(updated);
         await electronAPI.updatePetStats(updated);
-        uiManager.renderPet(await petManager.loadPet());
+        window.electronAPI.signalPetAnimation('feed');
+        uiManager.renderPet(await petManager.loadPet(electronAPI, user.username));
     });
 
     document.getElementById('killPetBtn').addEventListener('click', async () => {
         if (intInterval) clearInterval(intInterval);
-        const pet = await petManager.loadPet();
+        const pet = await petManager.loadPet(electronAPI, user.username);
         electronAPI.closePetWindow();
         electronAPI.killPet(pet.id);
         uiManager.hidePet();
-        alert(pet.name + " died.");
+        // console.log(pet.name + " died.");
     });
     
     function startIntimacyLoop() {
@@ -77,12 +82,12 @@ export async function main() {
     
         intInterval = setInterval(async () => {
             if (petManager.isDead()) {
-                killPet();
                 return;
             }
-            behaviors.tick(petManager.loadPet());
-            await petManager.updateStats(electronAPI, petManager.loadPet());
-            uiManager.renderPet(petManager.loadPet());
+            const pet = await petManager.loadPet(electronAPI, user.username);
+            const updated = behaviors.tick(pet);
+            await petManager.updateStats(electronAPI, updated);
+            uiManager.renderPet(updated);
         }, 60000);
     }
 };
@@ -91,7 +96,6 @@ window.addEventListener('beforeunload', () => {
   userManager.clearUser();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-
-    main();
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     main();
+// });

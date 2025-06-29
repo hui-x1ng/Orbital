@@ -30,6 +30,6 @@ export function isDead() {
 
 export async function updateStats(electronAPI, newPet) {
     if (!newPet || !newPet.id) return;
-    await electronAPI.updatePetStats(newPet);
+    const updatedPet = await electronAPI.updatePetStats(newPet);
     currentPet = updatedPet;
 }

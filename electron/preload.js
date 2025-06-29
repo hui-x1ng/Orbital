@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+console.log('[preload] loaded in', window.location.href);
 
 contextBridge.exposeInMainWorld('electronAPI', {
   registerUser: (userData) => ipcRenderer.invoke('create-user', userData),
@@ -8,5 +9,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updatePetStats: (newPet) => ipcRenderer.invoke('update-pet-stats', {newPet}),
   killPet: (petId) => ipcRenderer.invoke('kill-pet', petId),
   openPetWindow: () => ipcRenderer.send('open-pet-window'),
-  closePetWindow: () => ipcRenderer.send('close-pet-window')
+  closePetWindow: () => ipcRenderer.send('close-pet-window'),
+  signalPetAnimation: (action) => ipcRenderer.send('pet-action', action),
+  onPetAction: (callback) => ipcRenderer.on('perform-pet-action', (_event, action) => {
+    callback(action);
+  }),
 });
