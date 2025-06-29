@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onPetAction: (callback) => ipcRenderer.on('perform-pet-action', (_event, action) => {
     callback(action);
   }),
+  chatWithPet: (message) => ipcRenderer.invoke('chat-with-pet', message)
 });

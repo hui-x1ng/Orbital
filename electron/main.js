@@ -5,6 +5,7 @@ require('./ipcHandlers');
 let mainWindow, petWindow;
 
 function createWindow() {
+    require('../db/sqlite');
     mainWindow = new BrowserWindow({
         width: 600,
         height: 600,
@@ -33,17 +34,17 @@ ipcMain.on('open-pet-window', () => {
       x: 1100,
       y: 600,
       frame: false,
-      transparent: true,
+      transparent: false,
       alwaysOnTop: true,
       hasShadow: false,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(__dirname, 'electron', 'preload.js'),
       }
     });
   
-    petWindow.loadFile('./renderer/pet/pet.html');
+    petWindow.loadFile('renderer/pet.html');
     // petWindow.webContents.openDevTools();
   
     petWindow.on('closed', () => {
