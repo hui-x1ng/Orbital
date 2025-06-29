@@ -5,7 +5,6 @@ require('./ipcHandlers');
 let mainWindow, petWindow;
 
 function createWindow() {
-    require('../db/sqlite');
     mainWindow = new BrowserWindow({
         width: 600,
         height: 600,
@@ -58,4 +57,13 @@ ipcMain.on('open-pet-window', () => {
       petWindow = null;
     }
   });
+
+  ipcMain.on('pet-action', (event, action) => {
+    // console.log(action)
+    if (petWindow && petWindow.webContents) {
+      console.log('ipcMain');
+      petWindow.webContents.send('perform-pet-action', action);
+    }
+});
+
 app.whenReady().then(createWindow);
