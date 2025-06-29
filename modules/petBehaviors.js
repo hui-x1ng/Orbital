@@ -23,9 +23,6 @@ export function beingTouchedLI(pet) {
     return pet;
 }
 
-
-
-
 export function sleep(pet) {
     pet.hp = Math.min(pet.hp + 0.5, 100);
     return pet;
@@ -41,4 +38,10 @@ export function getAnnoyed(pet) {
 
 export function getAngry(pet) {
     pet.intimacy = Math.max(pet.intimacy - 5, 0);
+}
+
+// New function for chatting with the pet
+export function chat(pet) {
+    pet.intimacy = Math.min(pet.intimacy + 0.3, 100);
+    return pet;
 }

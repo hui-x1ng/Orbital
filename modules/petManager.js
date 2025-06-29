@@ -21,15 +21,27 @@ export async function loadAllPets(electronAPI, username) {
 
 export async function createPet(electronAPI, username, petName) {
     await electronAPI.generatePet(username, petName);
+<<<<<<< HEAD
     return await getPetByName(electronAPI, username, petName);
 }
 
 export function isDead() {
     return currentPet.is_dead;
+=======
+    return await loadPet(electronAPI, username);
+}
+
+export function isDead() {
+    return !currentPet || currentPet.is_dead;
+>>>>>>> feature/chat
 }
 
 export async function updateStats(electronAPI, newPet) {
     if (!newPet || !newPet.id) return;
+<<<<<<< HEAD
     const updatedPet = await electronAPI.updatePetStats(newPet);
+=======
+    await electronAPI.updatePetStats(newPet);
+>>>>>>> feature/chat
     currentPet = updatedPet;
 }

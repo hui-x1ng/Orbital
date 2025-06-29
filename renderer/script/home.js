@@ -96,6 +96,16 @@ export async function main() {
         uiManager.hidePet();
         // console.log(pet.name + " died.");
     });
+
+    // Listen for AI chat events to update intimacy
+    window.addEventListener('pet-chat', async (e) => {
+        const pet = await petManager.loadPet();
+        if (pet) {
+            const updated = behaviors.chat(pet);
+            await electronAPI.updatePetStats(updated);
+            uiManager.renderPet(await petManager.loadPet());
+        }
+    });
     
     function startIntimacyLoop() {
         if (intInterval) clearInterval(intInterval);
