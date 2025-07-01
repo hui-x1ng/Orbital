@@ -12,19 +12,6 @@ ipcMain.handle('create-pet', (event, { ownerId, name }) => {
 
 ipcMain.handle('get-pets', async (_, username) => {
     return db.getPetsByUser(username);
-    return db.getPetsByUser(username);
-});
-
-ipcMain.handle('get-pet', async (_, { username, petName }) => {
-    return db.getPet(username, petName);
-});
-
-ipcMain.handle('update-pet-stats', (_, {newPet}) => {
-    return db.updatePetStats(newPet.id, {
-        age: newPet.age,
-        hp: newPet.hp,
-        intimacy: newPet.intimacy
-    });
 });
 
 ipcMain.handle('get-pet', async (_, { username, petName }) => {

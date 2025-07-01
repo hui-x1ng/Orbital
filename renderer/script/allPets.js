@@ -19,7 +19,7 @@ export async function renderPetGallery() {
         console.log(pet.name);
 
         card.innerHTML = `
-            <img src="../assets/${pet.image || 'cat.png'}" class="pet-image">
+            <img src="../assets/${pet.image || 'cat-default.gif'}" class="pet-image">
             <div class="pet-name">${pet.name}</div>
             <div class="pet-status ${pet.is_dead === 0 ? 'status-alive' : 'status-deceased'}">
                 ${pet.is_dead === 0 ? 'Alive' : 'Dead'}

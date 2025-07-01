@@ -40,11 +40,11 @@ ipcMain.on('open-pet-window', () => {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        preload: path.join(__dirname, 'electron', 'preload.js'),
+        preload: path.join(__dirname, 'preload.js'),
       }
     });
   
-    petWindow.loadFile('renderer/pet.html');
+    petWindow.loadFile('renderer/pet/pet.html');
     // petWindow.webContents.openDevTools();
   
     petWindow.on('closed', () => {
@@ -62,7 +62,6 @@ ipcMain.on('open-pet-window', () => {
   ipcMain.on('pet-action', (event, action) => {
     // console.log(action)
     if (petWindow && petWindow.webContents) {
-      console.log('ipcMain');
       petWindow.webContents.send('perform-pet-action', action);
     }
 });
