@@ -20,9 +20,9 @@ const durations = {
 
 class PetWindow {
   constructor(imgElement) {
-    this.img = imgElement;
-    this.defaultSrc = '../../assets/cat.png';
-    this.happySrc = '../../assets/happycat.png';
+    this.img = imgElement || this.document.getElementById('petImage');
+    this.defaultSrc = '../../assets/cat-default.png';
+    this.happySrc = '../../assets/cat-default.png';
     this.isReacting = false;
     this.dialog = document.getElementById('petDialog');
     this.dialogContent = document.getElementById('dialogContent');
@@ -67,6 +67,63 @@ class PetWindow {
     }
   }
 
+  setupDialog() {
+      // 添加打字指示器
+      this.typingIndicator = document.createElement('div');
+      this.typingIndicator.className = 'message pet-message typing-indicator';
+      this.typingIndicator.innerHTML = `
+          <div class="typing">
+              <span></span>
+              <span></span>
+              <span></span>
+          </div>
+      `;
+      this.dialogContent.appendChild(this.typingIndicator);
+      this.typingIndicator.style.display = 'none';
+  }
+
+  setupEventListeners() {
+    // 双击宠物打开对话框
+    this.img.addEventListener('dblclick', () => this.toggleDialog());
+    
+    // 发送按钮点击事件
+    document.getElementById('sendBtn').addEventListener('click', () => {
+        this.sendMessage();
+    });
+    
+    // 关闭按钮点击事件 - 修复版
+    const closeBtn = document.getElementById('closeDialogBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleDialog();
+        });
+    }
+    
+    // Enter键发送消息
+    this.userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            this.sendMessage();
+        }
+    });
+    
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.dialog.classList.contains('show')) {
+            this.toggleDialog();
+        }
+    });
+    
+
+    document.addEventListener('click', (e) => {
+        if (this.dialog.classList.contains('show') && 
+            !this.dialog.contains(e.target) && 
+            e.target !== this.img) {
+            this.toggleDialog();
+        }
+    });
+  }
+
   toggleDialog() {
         this.dialog.classList.toggle('show');
         if (this.dialog.classList.contains('show')) {
@@ -108,7 +165,7 @@ class PetWindow {
           }, 800);
       } catch (error) {
           this.hideTypingIndicator();
-          this.addMessage('Oops! Something went wrong. Please try again later.', 'pet');
+          this.addMessage('Oops! Something went wrong. Please try again later.' + error, 'pet');
           console.error('AI chat error:', error);
       }
   }
@@ -206,7 +263,7 @@ let petWindow;
 
 window.addEventListener('DOMContentLoaded', () => {
   const petArea = document.getElementById('petImage');
-  petWindow = new PetWindow();
+  petWindow = new PetWindow(petArea);
   petArea.addEventListener('click', () => petWindow.reactToTouch());
 
   window.electronAPI.onPetAction((action) => {
@@ -215,6 +272,37 @@ window.addEventListener('DOMContentLoaded', () => {
       petWindow.reactEmotion(action);
     }
 
+  });
+
+  let isDragging = false;
+  let offsetX, offsetY;
+  
+  petArea.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - petArea.getBoundingClientRect().left;
+      offsetY = e.clientY - petArea.getBoundingClientRect().top;
+      petArea.style.cursor = 'grabbing';
+      petArea.style.transition = 'none';
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+      
+      const maxX = window.innerWidth - petArea.width;
+      const maxY = window.innerHeight - petArea.height;
+      
+      petArea.style.left = `${Math.max(0, Math.min(maxX, x))}px`;
+      petArea.style.top = `${Math.max(0, Math.min(maxY, y))}px`;
+      petArea.style.position = 'fixed';
+  });
+  
+  document.addEventListener('mouseup', () => {
+      isDragging = false;
+      petArea.style.cursor = 'pointer';
+      petArea.style.transition = 'transform 0.3s ease';
   });
 
 });
