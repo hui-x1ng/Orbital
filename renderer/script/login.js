@@ -12,7 +12,7 @@ if (loginBtn) {
 
         try {
             const user = await userManager.login(username, password);
-            localStorage.setItem('user', JSON.stringify(user));
+            // localStorage.setItem('user', JSON.stringify(user));
             window.location.href = '../index.html';
         } catch (err) {
             console.error(err);

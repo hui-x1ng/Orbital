@@ -78,7 +78,6 @@ export async function main() {
     document.getElementById('feed-btn').addEventListener('click', async () => {
         try{
             const updated = behaviors.feed(currentPet);
-            // console.log(updated);
             await electronAPI.updatePetStats(updated);
             window.electronAPI.signalPetAnimation('feed');
             uiManager.renderPet(await currentPet);

@@ -3,6 +3,8 @@ const path = require('path');
 require('./ipcHandlers');
 
 let mainWindow, petWindow;
+const { startServer, stopServer } = require('./diagnosticServer');
+let diagnosticsBridgeEnabled = false;
 
 function createWindow() {
     require('../db/sqlite');

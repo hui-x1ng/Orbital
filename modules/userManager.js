@@ -1,13 +1,20 @@
 let currentUser = null;
 
+//login user to db
 export async function login(username, password) {
     if (!username || !password) throw new Error("Username or password missing");
 
     if (password !== 'petlover') throw new Error("Incorrect password");
 
     await window.electronAPI.registerUser({ username, pw: password });
-    currentUser = { username };
+    currentUser = {
+        username,
+        achievements: ['firstPet'],
+        stats: {} // for achievement
+    };
+    saveUserState(currentUser);
     return currentUser;
+
 }
 
 export function logout() {
@@ -15,15 +22,16 @@ export function logout() {
 }
 
 //get user from localstorage
-export function getUser() {
-    return currentUser;
-}
+// export function getUser() {
+//     return currentUser;
+// }
 
 export function isLoggedIn() {
     return !!currentUser;
 }
 
-export function saveUser(user) {
+//overwrite user data to local
+export function saveUserState(user) {
     localStorage.setItem('user', JSON.stringify(user));
 }
 
@@ -36,3 +44,22 @@ export function clearUser() {
     localStorage.removeItem('user');
 }
 
+export function getUserAchievements() {
+    const user = loadUser();
+    return user?.achievements || [];
+}
+
+export function grantAchievement(achievementId) {
+    const user = getUser();
+    if (!user || !achievementId) return;
+
+    if (!user.achievements.includes(achievementId)) {
+        user.achievements.push(achievementId);
+        saveUser(user);
+        showAchievementPopup(achievementId);
+    }
+}
+
+function showAchievementPopup(achievementId) {
+    console.log(`Achievement unlocked: ${achievementId}`);
+}
