@@ -9,8 +9,8 @@ export async function login(username, password) {
     await window.electronAPI.registerUser({ username, pw: password });
     currentUser = {
         username,
-        achievements: ['firstPet'],
-        stats: {} // for achievement
+        achievements: [],
+        stats: {} // for tracking achievements
     };
     saveUserState(currentUser);
     return currentUser;
@@ -35,8 +35,9 @@ export function saveUserState(user) {
     localStorage.setItem('user', JSON.stringify(user));
 }
 
-export function loadUser() {
+export function getUser() {
     const raw = localStorage.getItem('user');
+    console.log(raw ? JSON.parse(raw) : null);
     return raw ? JSON.parse(raw) : null;
 }
 
@@ -45,7 +46,7 @@ export function clearUser() {
 }
 
 export function getUserAchievements() {
-    const user = loadUser();
+    const user = getUser();
     return user?.achievements || [];
 }
 
@@ -55,11 +56,18 @@ export function grantAchievement(achievementId) {
 
     if (!user.achievements.includes(achievementId)) {
         user.achievements.push(achievementId);
-        saveUser(user);
+        saveUserState(user);
         showAchievementPopup(achievementId);
     }
 }
 
 function showAchievementPopup(achievementId) {
     console.log(`Achievement unlocked: ${achievementId}`);
+}
+
+export function incrementStat(statKey, amount = 1) {
+    const user = getUser();
+    if (!user) return;
+    user.stats[statKey] = (user.stats[statKey] || 0) + amount;
+    saveUserState(user);
 }

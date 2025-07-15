@@ -2,13 +2,14 @@ import * as userManager from '../../modules/userManager.js';
 import * as uiManager from '../../modules/uiRenderer.js';
 import * as petManager from '../../modules/petManager.js';
 import * as behaviors from '../../modules/petBehaviors.js';
+import { checkFirstPetAchievement } from '../../modules/statsManager.js';
 
 export async function main() {
 
 
     let intInterval = null;
     const electronAPI = window.electronAPI;
-    const user = userManager.loadUser();
+    const user = userManager.getUser();
     let currentPet = null;
     if (!user) {
         window.location.href = './pages/login.html';
@@ -36,6 +37,8 @@ export async function main() {
             uiManager.hidePetNameInput();
             uiManager.renderPet(currentPet);
             startIntimacyLoop();
+            userManager.incrementStat('petsCreated', 1); //updates local memory
+            checkFirstPetAchievement();
         } catch(err) {
             console.error('pet failed to generate: ' + err);
         }

@@ -5,7 +5,7 @@ const electronAPI = window.electronAPI;
 
 export async function renderPetGallery() {
     console.log('Renderering pet gallery');
-    const currentUser = userManager.loadUser();
+    const currentUser = userManager.getUser();
     const pets = await electronAPI.getPets(currentUser.username);
     // console.log(pets);
     const grid = document.getElementById('petsGrid');
@@ -49,7 +49,7 @@ async function openPetModal(petName) {
     const modalPetIntimacy = document.getElementById('modalPetIntimacy');
     const modalPetStatus = document.getElementById('modalPetStatus');
     const closeModalBtn = document.getElementById('closeModalBtn');
-    const currentUser = userManager.loadUser(); 
+    const currentUser = userManager.getUser(); 
     const pet = await petManager.getPetByName(electronAPI, currentUser.username, petName);
 
     console.log(pet)
