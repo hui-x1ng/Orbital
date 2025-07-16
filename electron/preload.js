@@ -17,4 +17,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   chatWithPet: (message) => ipcRenderer.invoke('chat-with-pet', message),
   getAchievementsByName: (username) => ipcRenderer.invoke('get-achievement-by-name', username),
   grantAchievement: (username, achievement_id) => ipcRenderer.send('grant-achievement', {username, achievement_id}),
+  incrementAchievementProgress: (username, achievement_id) => ipcRenderer.invoke('increment-achievement-progress', {username, achievement_id})
 });

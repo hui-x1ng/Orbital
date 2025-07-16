@@ -31,13 +31,3 @@ export function checkNoTypos10Minutes() {
         saveUserState(user);
     }
 }
-
-//firstPet
-export function checkFirstPetAchievement() {
-  const user = getUser();
-  if (!user) return;
-
-  if ((user.stats.petsCreated || 0) >= 1 && !user.achievements.includes('firstPet')) {
-    grantAchievement('firstPet');
-  }
-}

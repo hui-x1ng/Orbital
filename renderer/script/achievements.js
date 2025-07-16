@@ -29,7 +29,7 @@ async function renderAchievementsGallery() {
 
 
 function openAchievementModal(name, description, achieved_at) {
-    console.log('Opening modal for achievement:', achievementName);
+    console.log('Opening modal for achievement:', name);
     
     const modal = document.getElementById('achievementModal');
     

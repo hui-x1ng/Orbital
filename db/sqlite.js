@@ -32,7 +32,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS achievements (
       id TEXT PRIMARY KEY UNIQUE,
       name TEXT,
-      description TEXT
+      description TEXT,
+      target INTEGER
   );
 
   CREATE TABLE IF NOT EXISTS user_achievements (
@@ -44,12 +45,14 @@ db.exec(`
     FOREIGN KEY (achievement_id) REFERENCES achievements(id)
   );
 
-  CREATE TABLE IF NOT EXISTS user_stats (
-    user_id TEXT,
-    stat_key TEXT,
-    stat_value INTEGER DEFAULT 0,
-    PRIMARY KEY (user_id, stat_key),
-    FOREIGN KEY (user_id) REFERENCES users(username)
+CREATE TABLE IF NOT EXISTS user_achievement_progress (
+    user_id INT,
+    achievement_id INT,
+    current_progress INT DEFAULT 0,
+    target INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, achievement_id)
   );
 `);
 
@@ -121,7 +124,7 @@ function grantAchievement(username, achievement_id) {
       INSERT OR IGNORE INTO user_achievements (user_id, achievement_id) 
       VALUES (?, ?)
     `);
-    stmt.run(username, achievement_id, Date.now().toString());
+    stmt.run(username, achievement_id);
   } catch (err) {
     console.error(err);
   }
@@ -129,20 +132,77 @@ function grantAchievement(username, achievement_id) {
 
 function insertAllAchievements() {
   const insert = db.prepare(`
-    INSERT OR IGNORE INTO achievements (id, name, description)
-    VALUES (?, ?, ?)
+    INSERT OR IGNORE INTO achievements (id, name, description, target)
+    VALUES (?, ?, ?, ?)
   `);
   const insertMany = db.transaction(() => {
     for (const achievement of ALL_ACHIEVEMENTS) {
-      insert.run(achievement.id, achievement.title, achievement.description);
+      insert.run(achievement.id, achievement.title, achievement.description, achievement.target);
     }
   });
   insertMany();
 }
 
+function initializeAchievementProgress(userId, achievementId) {
+  console.log(userId);
+  console.log(achievementId);
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO user_achievement_progress (user_id, achievement_id, current_progress, target)
+    SELECT ?, ?, 0, achievements.target 
+    FROM achievements 
+    WHERE id = ?
+  `);
+  stmt.run(userId, achievementId, achievementId);
+}
+
+//returns whether youve completeed the achivement or not
+function incrementAchievementProgress(userId, achievementId, amount = 1) {
+  if (checkAchievementCompletion(userId, achievementId)) {
+    return true;
+  }
+  //ensures record for this achivement exists
+  initializeAchievementProgress(userId, achievementId);
+
+  const debugRow = db.prepare(`
+    SELECT * FROM user_achievement_progress 
+    WHERE user_id = ? AND achievement_id = ?
+  `).get(userId, achievementId);
+
+  if (!debugRow) {
+    throw new Error('Row missing after initializeAchievementProgress.');
+  }
+  
+  const stmt = db.prepare(`
+    UPDATE user_achievement_progress 
+    SET current_progress = current_progress + ?, updated_at = CURRENT_TIMESTAMP
+    WHERE user_id = ? AND achievement_id = ?
+  `);
+  stmt.run(amount, userId, achievementId);
+  
+  return checkAchievementCompletion(userId, achievementId);
+}
+
+function checkAchievementCompletion(userId, achievementId) {
+  const progress = db.prepare(`
+    SELECT current_progress, target
+    FROM user_achievement_progress 
+    WHERE user_id = ? AND achievement_id = ?
+  `).get(userId, achievementId);
+  
+  if (progress && progress.current_progress >= progress.target) {
+    grantAchievement(userId, achievementId);
+    db.prepare(`
+      DELETE FROM user_achievement_progress 
+      WHERE user_id = ? AND achievement_id = ?
+    `).run(userId, achievementId);
+    return true;
+  }
+  return false;
+}
+
+
+
 insertAllAchievements();
-
-
 
 module.exports = {
   createUser,
@@ -153,4 +213,5 @@ module.exports = {
   getPet,
   getAchievementsByName,
   grantAchievement,
+  incrementAchievementProgress,
 };

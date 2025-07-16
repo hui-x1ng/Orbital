@@ -65,9 +65,11 @@ function showAchievementPopup(achievementId) {
     console.log(`Achievement unlocked: ${achievementId}`);
 }
 
-export function incrementStat(statKey, amount = 1) {
-    const user = getUser();
-    if (!user) return;
-    user.stats[statKey] = (user.stats[statKey] || 0) + amount;
-    saveUserState(user);
+export function incrementAchievementProgress(achievement_id) {
+    const username = getUser() ? getUser().username : null;
+    if (!username) return;
+    console.log('pet number should be incremented')
+    if (electronAPI.incrementAchievementProgress(username, achievement_id)) {
+        showAchievementPopup();
+    }
 }

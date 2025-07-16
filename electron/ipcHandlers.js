@@ -38,10 +38,14 @@ ipcMain.handle('get-achievement-by-name', (_, username) => {
     return db.getAchievementsByName(username);
 })
 
-ipcMain.handle('grant-achievement', (_, username, achievement_id) => {
+ipcMain.handle('grant-achievement', (_, {username, achievement_id}) => {
     db.grantAchievement(username, achievement_id);
 })
 
 ipcMain.handle('insert-achievements', (_) => {
     db.insertAllAchievements();
+})
+
+ipcMain.handle('increment-achievement-progress', (_, {username, achievement_id}) => {
+    return db.incrementAchievementProgress(username, achievement_id);
 })

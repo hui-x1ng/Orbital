@@ -2,7 +2,6 @@ import * as userManager from '../../modules/userManager.js';
 import * as uiManager from '../../modules/uiRenderer.js';
 import * as petManager from '../../modules/petManager.js';
 import * as behaviors from '../../modules/petBehaviors.js';
-import { checkFirstPetAchievement } from '../../modules/statsManager.js';
 
 export async function main() {
 
@@ -37,8 +36,8 @@ export async function main() {
             uiManager.hidePetNameInput();
             uiManager.renderPet(currentPet);
             startIntimacyLoop();
-            userManager.incrementStat('petsCreated', 1); //updates local memory
-            checkFirstPetAchievement();
+            console.log('incremented from home page');
+            userManager.incrementAchievementProgress('firstPet')
         } catch(err) {
             console.error('pet failed to generate: ' + err);
         }
