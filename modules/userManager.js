@@ -1,4 +1,5 @@
 let currentUser = null;
+const electronAPI = window.electronAPI;
 
 //login user to db
 export async function login(username, password) {
@@ -8,9 +9,7 @@ export async function login(username, password) {
 
     await window.electronAPI.registerUser({ username, pw: password });
     currentUser = {
-        username,
-        achievements: [],
-        stats: {} // for tracking achievements
+        username
     };
     saveUserState(currentUser);
     return currentUser;
@@ -45,21 +44,22 @@ export function clearUser() {
     localStorage.removeItem('user');
 }
 
-export function getUserAchievements() {
-    const user = getUser();
-    return user?.achievements || [];
+export async function getUserAchievements() {
+    const username = getUser() ? getUser().username : null;
+    const achievements = await electronAPI.getAchievementsByName(username);
+    console.log(achievements);
+    return achievements
 }
 
 export function grantAchievement(achievementId) {
-    const user = getUser();
-    if (!user || !achievementId) return;
-
-    if (!user.achievements.includes(achievementId)) {
-        user.achievements.push(achievementId);
-        saveUserState(user);
-        showAchievementPopup(achievementId);
-    }
+  const username = getUser() ? getUser().username : null;
+  if (!username) {
+    console.warn('No logged-in user!');
+    return;
+  }
+  electronAPI.grantAchievement(username, achievementId);
 }
+
 
 function showAchievementPopup(achievementId) {
     console.log(`Achievement unlocked: ${achievementId}`);

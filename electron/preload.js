@@ -14,5 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onPetAction: (callback) => ipcRenderer.on('perform-pet-action', (_event, action) => {
     callback(action);
   }),
-  chatWithPet: (message) => ipcRenderer.invoke('chat-with-pet', message)
+  chatWithPet: (message) => ipcRenderer.invoke('chat-with-pet', message),
+  getAchievementsByName: (username) => ipcRenderer.invoke('get-achievement-by-name', username),
+  grantAchievement: (username, achievement_id) => ipcRenderer.send('grant-achievement', {username, achievement_id}),
 });

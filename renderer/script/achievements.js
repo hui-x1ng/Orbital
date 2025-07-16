@@ -1,25 +1,25 @@
 import * as userManager from '../../modules/userManager.js';
 import { ALL_ACHIEVEMENTS } from '../../achievements/achievements.js';
 
-function renderAchievementsGallery() {
+async function renderAchievementsGallery() {
     console.log('Rendering achievements gallery');
     const grid = document.getElementById('achievementsGrid');
     
     grid.innerHTML = '';
 
-    const userAchievements = userManager.getUserAchievements();
+    const userAchievements = await userManager.getUserAchievements();
 
-    userAchievements.forEach(achievementId => {
-    const achievement = ALL_ACHIEVEMENTS.find(a => a.id === achievementId);
-    if (!achievement) return; // skip unknown
+    userAchievements.forEach(achievement => {
+    // const achievement = ALL_ACHIEVEMENTS.find(a => a.id === achievementId);
+    // if (!achievement) return; // skip unknown
 
     const card = document.createElement('div');
     card.className = 'achievement-card';
-    card.onclick = () => openAchievementModal(achievement.id);
+    card.onclick = () => openAchievementModal(achievement.name, achievement.description, achievement.achieved_at);
 
     card.innerHTML = `
       <div class="achievement-icon">${achievement.icon || '🏆'}</div>
-      <div class="achievement-name">${achievement.title}</div>
+      <div class="achievement-name">${achievement.name}</div>
       <div class="achievement-description">${achievement.description}</div>
     `;
 
@@ -28,8 +28,8 @@ function renderAchievementsGallery() {
 }
 
 
-function openAchievementModal(achievementId) {
-    console.log('Opening modal for achievement:', achievementId);
+function openAchievementModal(name, description, achieved_at) {
+    console.log('Opening modal for achievement:', achievementName);
     
     const modal = document.getElementById('achievementModal');
     
@@ -39,18 +39,11 @@ function openAchievementModal(achievementId) {
         return;
     }
 
-    const achievement = ALL_ACHIEVEMENTS.find(a => a.id === achievementId);
-    
-    if (!achievement) {
-        alert('Achievement not found!');
-        return;
-    }
-
-    document.getElementById('modalAchievementIcon').textContent = achievement.icon;
-    document.getElementById('modalAchievementName').textContent = achievement.name;
-    document.getElementById('modalAchievementDetails').textContent = achievement.details;
+    document.getElementById('modalAchievementIcon').textContent = achievement.icon || '🏆';
+    document.getElementById('modalAchievementName').textContent = name;
+    document.getElementById('modalAchievementDetails').textContent = description;
     document.getElementById('modalAchievementDateTime').textContent = 
-        `Achieved on ${formatDateTime(achievement.dateAchieved)}`;
+        `Achieved on ${formatDateTime(achievement.achieved_at)}`;
 
     modal.classList.remove('hidden');
     modal.classList.add('show');

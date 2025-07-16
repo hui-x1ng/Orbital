@@ -1,3 +1,4 @@
+const achievements = require('../achievements/achievements.js');
 const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
@@ -7,7 +8,7 @@ const userDataPath = app.getPath('userData');
 const dbPath = path.join(userDataPath, 'data.db');
 
 const bundledDbPath = path.join(__dirname, '..', 'data.db');
-
+const ALL_ACHIEVEMENTS = achievements.ALL_ACHIEVEMENTS;
 const db = new Database(dbPath);
 console.log("Using DB at:", dbPath);
 db.exec(`
@@ -27,7 +28,32 @@ db.exec(`
     FOREIGN KEY (owner_id) REFERENCES users(username)
     UNIQUE(owner_id, name)
   );
+
+  CREATE TABLE IF NOT EXISTS achievements (
+      id TEXT PRIMARY KEY UNIQUE,
+      name TEXT,
+      description TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS user_achievements (
+    user_id TEXT,
+    achievement_id TEXT,
+    achieved_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, achievement_id),
+    FOREIGN KEY (user_id) REFERENCES users(username),
+    FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS user_stats (
+    user_id TEXT,
+    stat_key TEXT,
+    stat_value INTEGER DEFAULT 0,
+    PRIMARY KEY (user_id, stat_key),
+    FOREIGN KEY (user_id) REFERENCES users(username)
+  );
 `);
+
+//users and pets
 
 function createUser(username, password) {
   const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
@@ -43,11 +69,6 @@ function getPetsByUser(ownerId) {
   const stmt = db.prepare('SELECT * FROM pets WHERE owner_id = ?');
   return stmt.all(ownerId);
 }
-
-// function updateHp(petId, newHp) {
-//   const stmt = db.prepare(`UPDATE pets SET hp = ? WHERE id = ?`);
-//   stmt.run(newHp, petId);
-// }
 
 function updatePetStats(petId, updates) {
   const fields = [];
@@ -82,6 +103,47 @@ function killPet(petId) {
   stmt.run(petId);
 }
 
+//achievements
+
+function getAchievementsByName(username) {
+  const stmt = db.prepare(`
+SELECT achievements.name, achievements.description, user_achievements.achieved_at
+    FROM user_achievements
+    JOIN achievements ON user_achievements.achievement_id = achievements.id
+    WHERE user_achievements.user_id = ?
+    `);
+  return stmt.all(username);
+}
+
+function grantAchievement(username, achievement_id) {
+  try {
+    const stmt = db.prepare(`
+      INSERT OR IGNORE INTO user_achievements (user_id, achievement_id) 
+      VALUES (?, ?)
+    `);
+    stmt.run(username, achievement_id, Date.now().toString());
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function insertAllAchievements() {
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO achievements (id, name, description)
+    VALUES (?, ?, ?)
+  `);
+  const insertMany = db.transaction(() => {
+    for (const achievement of ALL_ACHIEVEMENTS) {
+      insert.run(achievement.id, achievement.title, achievement.description);
+    }
+  });
+  insertMany();
+}
+
+insertAllAchievements();
+
+
+
 module.exports = {
   createUser,
   createPet,
@@ -89,4 +151,6 @@ module.exports = {
   updatePetStats,
   killPet,
   getPet,
+  getAchievementsByName,
+  grantAchievement,
 };
