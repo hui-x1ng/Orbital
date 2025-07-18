@@ -62,8 +62,10 @@ export function grantAchievement(achievementId) {
 
 
 function showAchievementPopup(achievementId) {
-    console.log(`Achievement unlocked: ${achievementId}`);
-}
+  console.log(`Achievement unlocked: ${achievementId}`);
+  
+  alert(`Achievement unlocked: ${achievementId}`);
+  }
 
 export function incrementAchievementProgress(achievement_id) {
     const username = getUser() ? getUser().username : null;

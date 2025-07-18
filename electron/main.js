@@ -27,6 +27,10 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
 }
 
+let dragData = null;
+let lastMoveTime = 0;
+const DRAG_THROTTLE = 8;
+
 ipcMain.on('open-pet-window', () => {
     if (petWindow) return;
   
@@ -36,9 +40,10 @@ ipcMain.on('open-pet-window', () => {
       x: 1100,
       y: 600,
       frame: false,
-      transparent: false,
+      transparent: true,
       alwaysOnTop: true,
       hasShadow: false,
+      skipTaskbar: true,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -49,11 +54,28 @@ ipcMain.on('open-pet-window', () => {
     petWindow.loadFile('renderer/pet/pet.html');
     // petWindow.webContents.openDevTools();
   
+    //handle close window
     petWindow.on('closed', () => {
       petWindow = null;
     });
+
+    //enable window dragging
+    petWindow.webContents.executeJavaScript(`
+      document.addEventListener('DOMContentLoaded', () => {
+        const body = document.body;
+        body.style.webkitAppRegion = 'no-drag'; // Disable default dragging
+      });
+    `);
   });
   
+  ipcMain.handle('move-window', (event, deltaX, deltaY) => {
+    if (petWindow) {
+      const [currentX, currentY] = petWindow.getPosition();
+      petWindow.setPosition(currentX + deltaX, currentY + deltaY);
+    }
+  });
+
+
   ipcMain.on('close-pet-window', () => {
     if (petWindow) {
       petWindow.close();

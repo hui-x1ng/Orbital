@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 let server = null;
 
@@ -80,3 +81,11 @@ function handleDiagnostic(data) {
 function handleRuntimeError(data) {
   console.log(`[Pet] 💥 Runtime Error: ${data.message} at line ${data.line}, column ${data.column}`);
 }
+
+ipcMain.on('server-toggle', (event, isOn) => {
+    if (isOn) {
+        startServer();
+    } else {
+        stopServer();
+    }
+});

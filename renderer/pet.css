@@ -1,17 +1,28 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden
+}
+
 #pet-body {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #e0f7fa, #f8bbd0);
+    background: transparent;
     overflow: hidden;
 }
 
 #petImage {
     width: 200px;
     transition: transform 0.3s ease;
-    cursor: pointer;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 #petImage:hover {
@@ -250,7 +261,7 @@
 }
 
 /* 添加可爱的装饰元素 */
-#pet-body::before {
+/* #pet-body::before {
     content: "";
     position: absolute;
     top: 20px;
@@ -272,4 +283,4 @@
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f48fb1"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/></svg>');
     opacity: 0.2;
     z-index: -1;
-}
+} */

@@ -30,10 +30,119 @@ class PetWindow {
     
     this.setupDialog();
     this.setupEventListeners();
+    this.setupDragging();
 
     this.pet = petManager.loadPet();
     this.gifSrc = document.getElementById('petImage');
     this.currentTimeout = null;
+
+    this.isDragging = false;
+    this.dragStartTime = 0;
+    this.dragThreshold = 0;
+    this.startX = 0;
+    this.startY = 0;
+    this.hasMoved = false;
+  }
+
+  setupDragging() {
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let hasMoved = false;
+
+    this.img.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      isDragging = true;
+      hasMoved = false;
+      
+      startX = e.clientX;
+      startY = e.clientY;
+      this.dragStartTime = Date.now();
+      
+      this.img.style.cursor = 'grabbing';
+      
+      //mouse listeners
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    });
+
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      //Check if we've moved enough to consider it a drag
+      if (Math.abs(deltaX) > this.dragThreshold || Math.abs(deltaY) > this.dragThreshold) {
+        hasMoved = true;
+        
+        //move
+        if (window.electronAPI && window.electronAPI.moveWindow) {
+          window.electronAPI.moveWindow(deltaX, deltaY);
+        }
+        
+    //reset
+        startX = e.clientX;
+        startY = e.clientY;
+      }
+    };
+
+    const handleMouseUp = (e) => {
+      if (isDragging) {
+        isDragging = false;
+        this.img.style.cursor = 'grab';
+        
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        
+        const timeDiff = Date.now() - this.dragStartTime;
+        if (!hasMoved && timeDiff < 300) {
+          this.handlePetClick();
+        }
+      }
+    };
+
+    this.img.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      isDragging = true;
+      hasMoved = false;
+      
+      startX = touch.clientX;
+      startY = touch.clientY;
+      this.dragStartTime = Date.now();
+    });
+
+    this.img.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+      
+      if (Math.abs(deltaX) > this.dragThreshold || Math.abs(deltaY) > this.dragThreshold) {
+        hasMoved = true;
+        
+        if (window.electronAPI && window.electronAPI.moveWindow) {
+          window.electronAPI.moveWindow(deltaX, deltaY);
+        }
+        
+        startX = touch.clientX;
+        startY = touch.clientY;
+      }
+    });
+
+    this.img.addEventListener('touchend', (e) => {
+      if (isDragging) {
+        isDragging = false;
+        
+        const timeDiff = Date.now() - this.dragStartTime;
+        if (!hasMoved && timeDiff < 300) {
+          this.handlePetClick();
+        }
+      }
+    });
   }
 
   async reactEmotion(emotionName) {
@@ -209,53 +318,12 @@ class PetWindow {
       this.img.src = this.happySrc;
       
 
-      this.createFloatingHearts();
+    //   this.createFloatingHearts();
       
       setTimeout(() => {
           this.img.src = this.defaultSrc;
           this.isReacting = false;
       }, 3000);
-  }
-  
-  createFloatingHearts() {
-      const petBody = document.getElementById('pet-body');
-      for (let i = 0; i < 8; i++) {
-          const heart = document.createElement('div');
-          heart.style.position = 'absolute';
-          heart.style.left = `${this.img.offsetLeft + this.img.width / 2}px`;
-          heart.style.top = `${this.img.offsetTop + this.img.height / 2}px`;
-          heart.style.width = '20px';
-          heart.style.height = '20px';
-          heart.style.background = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${i % 2 === 0 ? '#f44336' : '#7e57c2'}"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/></svg>')`;
-          heart.style.backgroundSize = 'contain';
-          heart.style.zIndex = '999';
-          heart.style.opacity = '0';
-          heart.style.transition = 'all 1.5s ease-out';
-          petBody.appendChild(heart);
-          
-
-          const angle = Math.random() * Math.PI * 2;
-          const distance = 100 + Math.random() * 50;
-          const delay = i * 150;
-          
-          setTimeout(() => {
-              heart.style.opacity = '1';
-              heart.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance - 100}px) scale(0.2)`;
-              heart.style.opacity = '0';
-          }, delay);
-          
-
-          setTimeout(() => {
-              if (heart.parentNode) {
-                  heart.parentNode.removeChild(heart);
-              }
-          }, 1500 + delay);
-      }
-  }
-
-  reset() {
-      this.img.src = this.defaultSrc;
-      this.isReacting = false;
   }
 }
 

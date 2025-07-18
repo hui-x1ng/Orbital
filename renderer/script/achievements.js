@@ -39,11 +39,11 @@ function openAchievementModal(name, description, achieved_at) {
         return;
     }
 
-    document.getElementById('modalAchievementIcon').textContent = achievement.icon || '🏆';
+    document.getElementById('modalAchievementIcon').textContent = '🏆';
     document.getElementById('modalAchievementName').textContent = name;
     document.getElementById('modalAchievementDetails').textContent = description;
     document.getElementById('modalAchievementDateTime').textContent = 
-        `Achieved on ${formatDateTime(achievement.achieved_at)}`;
+        `Achieved on ${formatDateTime(achieved_at)}`;
 
     modal.classList.remove('hidden');
     modal.classList.add('show');
