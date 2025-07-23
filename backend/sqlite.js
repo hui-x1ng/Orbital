@@ -58,9 +58,21 @@ CREATE TABLE IF NOT EXISTS user_achievement_progress (
 
 //users and pets
 
-function createUser(username, password) {
+function register(username, password) {
   const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
-  stmt.run(username, password);
+  const result = stmt.run(username, password);
+  return result;
+}
+
+function getUserPassword(username) {
+  const stmt = db.prepare(`SELECT password FROM users WHERE username = ?`);
+  const result = stmt.get(username);
+  return result ? result.password : null;
+}
+
+function userExists(username) {
+  const stmt = db.prepare('SELECT username FROM users WHERE username = ?');
+  return stmt.get(username) !== undefined;
 }
 
 function createPet(owner, petName) {
@@ -71,6 +83,17 @@ function createPet(owner, petName) {
 function getPetsByUser(ownerId) {
   const stmt = db.prepare('SELECT * FROM pets WHERE owner_id = ?');
   return stmt.all(ownerId);
+}
+
+function getPetById(petId) {
+  const stmt = db.prepare('SELECT * FROM pets WHERE id = ?');
+  return stmt.get(petId);
+}
+
+//check if user already has a pet with this name
+function getPet(username, petName) {
+  const stmt = db.prepare('SELECT * FROM pets WHERE owner_id = ? AND name = ?');
+  return stmt.get(username, petName);
 }
 
 function updatePetStats(petId, updates) {
@@ -96,10 +119,7 @@ function deletePet(petId) {
   stmt.run(petId);
 }
 
-function getPet(username, petName) {
-  const stmt = db.prepare('SELECT * FROM pets WHERE owner_id = ? AND name = ?');
-  return stmt.get(username, petName);
-}
+
 
 function killPet(petId) {
   const stmt = db.prepare('UPDATE pets SET is_dead = true WHERE id = ? AND is_dead = false');
@@ -115,6 +135,22 @@ SELECT achievements.name, achievements.description, user_achievements.achieved_a
     JOIN achievements ON user_achievements.achievement_id = achievements.id
     WHERE user_achievements.user_id = ?
     `);
+  return stmt.all(username);
+}
+
+function getUserAchievementProgress(username) {
+  const stmt = db.prepare(`
+    SELECT 
+      uap.achievement_id,
+      a.name,
+      a.description,
+      uap.current_progress,
+      uap.target,
+      uap.updated_at
+    FROM user_achievement_progress uap
+    JOIN achievements a ON uap.achievement_id = a.id
+    WHERE uap.user_id = ?
+  `);
   return stmt.all(username);
 }
 
@@ -183,35 +219,31 @@ function incrementAchievementProgress(userId, achievementId, amount = 1) {
 }
 
 function checkAchievementCompletion(userId, achievementId) {
-  const progress = db.prepare(`
-    SELECT current_progress, target
-    FROM user_achievement_progress 
+  const result = db.prepare(`
+    SELECT 1 FROM user_achievements 
     WHERE user_id = ? AND achievement_id = ?
   `).get(userId, achievementId);
-  
-  if (progress && progress.current_progress >= progress.target) {
-    grantAchievement(userId, achievementId);
-    db.prepare(`
-      DELETE FROM user_achievement_progress 
-      WHERE user_id = ? AND achievement_id = ?
-    `).run(userId, achievementId);
-    return true;
-  }
-  return false;
+
+  return !!result;
 }
+
 
 
 
 insertAllAchievements();
 
 module.exports = {
-  createUser,
+  register,
+  getUserPassword,
+  userExists,
   createPet,
   getPetsByUser,
+  getPetById,
   updatePetStats,
   killPet,
   getPet,
   getAchievementsByName,
   grantAchievement,
   incrementAchievementProgress,
+  checkAchievementCompletion,
 };

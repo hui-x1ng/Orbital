@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const db = require('../db/sqlite');
+const db = require('../backend/sqlite');
 const { chatWithAI } = require('./aiService');
 
 ipcMain.handle('create-user', (event, { username, pw }) => {

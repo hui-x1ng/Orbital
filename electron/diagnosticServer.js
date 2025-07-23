@@ -16,7 +16,7 @@ function startServer(port = 8080) {
     ws.on('message', (message) => {
         try {
             const parsed = JSON.parse(message.toString());
-            console.log('[LSP Bridge] Received:', parsed);
+            // console.log('[LSP Bridge] Received:', parsed);
 
             const { type, data } = parsed;
 
@@ -64,22 +64,22 @@ module.exports = { startServer, stopServer };
 
 
 function handleSessionStart(data) {
-  console.log('[Pet] 🐛 Debug session started:', data.name);
+  console.log('[Pet] Debug session started:', data.name);
 }
 
 function handleSessionEnd(data) {
-  console.log('[Pet] ✅ Debug session ended.');
+  console.log('[Pet] Debug session ended.');
 }
 
 function handleDiagnostic(data) {
   const diagnostics = data.diagnostics || [];
   diagnostics.forEach((diag) => {
-    console.log(`[Pet] 📋 Diagnostic: ${diag.message} (Severity: ${diag.severity})`);
+    console.log(`[Pet] Diagnostic: ${diag.message} (Severity: ${diag.severity})`);
   });
 }
 
 function handleRuntimeError(data) {
-  console.log(`[Pet] 💥 Runtime Error: ${data.message} at line ${data.line}, column ${data.column}`);
+  console.log(`[Pet] Runtime Error: ${data.message} at line ${data.line}, column ${data.column}`);
 }
 
 ipcMain.on('server-toggle', (event, isOn) => {

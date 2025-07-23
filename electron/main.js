@@ -4,10 +4,11 @@ require('./ipcHandlers');
 
 let mainWindow, petWindow;
 const { startServer, stopServer } = require('./diagnosticServer');
+const { startAPIServer } = require('../backend/server');
 let diagnosticsBridgeEnabled = false;
 
 function createWindow() {
-    require('../db/sqlite');
+    require('../backend/sqlite');
     mainWindow = new BrowserWindow({
         width: 600,
         height: 600,
@@ -90,4 +91,7 @@ ipcMain.on('open-pet-window', () => {
     }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  startAPIServer();
+  createWindow();
+});
