@@ -1,0 +1,53 @@
+let currentPet;
+
+export async function loadPet(electronAPI, username) {
+    if (!currentPet) {
+        const pets = await electronAPI.getPets(username);
+        currentPet = pets.find(pet => !pet.is_dead);
+    }
+    // console.log(currentPet);
+    return currentPet;
+}
+
+export async function getPetByName(electronAPI, username, petName) {
+    const pet = await electronAPI.getPet(username, petName);
+    // console.log(pet);
+    return pet;
+}
+
+export async function loadAllPets(electronAPI, username) {
+    return await electronAPI.getPets(username);
+}
+
+export async function createPet(electronAPI, username, petName) {
+    await electronAPI.generatePet(username, petName);
+    return await getPetByName(electronAPI, username, petName);
+}
+
+export function isDead() {
+    return !currentPet || currentPet.is_dead;
+}
+
+export async function updateStats(electronAPI, newPet) {
+    if (!newPet || !newPet.id) return;
+    const updatedPet = await electronAPI.updatePetStats(newPet);
+    currentPet = updatedPet;
+}
+
+
+export async function savePet(electronAPI, pet) {
+    try {
+        if (electronAPI && electronAPI.savePet) {
+            return await electronAPI.savePet(pet);
+        } else if (electronAPI && electronAPI.updatePetStats) {
+            return await electronAPI.updatePetStats(pet);
+        } else {
+            console.log('No electronAPI available, pet data saved in memory:', pet);
+            currentPet = pet;
+            return pet;
+        }
+    } catch (error) {
+        console.error('Failed to save pet:', error);
+        throw error;
+    }
+}

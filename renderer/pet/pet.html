@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Virtual Pet</title>
+    <link rel="stylesheet" href="../pet.css">
+</head>
+<body>      
+    <div id="pet-body">
+        <img src="../../assets/cat-default.gif" id="petImage" alt="Virtual Pet" style="width: 160px;">
+        <div id="petDialog" class="hidden">
+            <div id="dialogHeader">
+                <h3>Chat with your pet</h3>
+                <button id="closeDialogBtn">×</button>
+            </div>
+            <div id="dialogContent"></div>
+            <div id="inputContainer">
+                <input type="text" id="userInput" placeholder="Type something to your pet...">
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="pet.js"></script>
+</body>      
+</html>

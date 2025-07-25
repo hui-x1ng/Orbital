@@ -1,0 +1,9 @@
+{
+  "apiProvider": "openai",
+  "apiEndpoint": "https://api.openai.com/v1/chat/completions",
+  "modelName": "gpt-3.5-turbo",
+  "apiKey": "",
+  "personality": "friendly",
+  "customPersonality": "",
+  "timestamp": 1753405401735
+}

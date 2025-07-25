@@ -1,0 +1,136 @@
+<style>
+    .settings-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .settings-container h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+    }
+    
+    .test-section {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .settings-container button {
+        background: #00bcd4;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+    }
+    
+    .settings-container button:hover {
+        background: #0097a7;
+    }
+    
+    .settings-container button:disabled {
+        background: #666;
+        cursor: not-allowed;
+    }
+    
+    .logout-button {
+        background: #f44336 !important;
+        margin-top: 20px;
+        width: 100%;
+    }
+    
+    .logout-button:hover {
+        background: #d32f2f !important;
+    }
+    
+    .log {
+        background: #000;
+        color: #0f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+    }
+    
+    .status {
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    
+    .status.success { background: rgba(76, 175, 80, 0.3); color: white; }
+    .status.error { background: rgba(244, 67, 54, 0.3); color: white; }
+    .status.info { background: rgba(33, 150, 243, 0.3); color: white; }
+</style>
+
+<div class="settings-container">
+    <h1>🔑 API Settings</h1>
+    
+    <div class="test-section">
+        <h3>API Test</h3>
+        <p>electronAPI Status: <span id="apiStatus">Checking...</span></p>
+        <p>Available Methods: <span id="methodCount">-</span></p>
+        <button id="testApiBtn">Test API</button>
+        <button id="testBasicCallBtn">Test Basic Call</button>
+    </div>
+    
+    <div class="form-group">
+        <label for="apiKey">OpenAI API Key:</label>
+        <input type="password" id="apiKey" placeholder="Enter your API Key...">
+    </div>
+    
+    <button id="saveBtn">Save Settings</button>
+    <button id="testConnectionBtn">Test Connection</button>
+    <button id="loadSettingsBtn">Load Settings</button>
+    
+    <div id="status" class="status" style="display: none;"></div>
+    
+    <div class="test-section">
+        <h3>Operation Log</h3>
+        <div id="log" class="log"></div>
+        <button id="clearLogBtn">Clear Log</button>
+    </div>
+    
+    <button id="logoutBtn" class="logout-button">Logout</button>
+</div>
