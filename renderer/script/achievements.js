@@ -8,7 +8,7 @@ async function renderAchievementsGallery() {
     grid.innerHTML = '';
 
     const userAchievements = await userManager.getUserAchievements();
-
+    
     userAchievements.forEach(achievement => {
     // const achievement = ALL_ACHIEVEMENTS.find(a => a.id === achievementId);
     // if (!achievement) return; // skip unknown

@@ -5,9 +5,8 @@ const electronAPI = window.electronAPI;
 
 export async function renderPetGallery() {
     console.log('Renderering pet gallery');
-    const currentUser = userManager.getUser();
-    const pets = await electronAPI.getPets(currentUser.username);
-    // console.log(pets);
+    const pets = await petManager.loadAllPets(electronAPI);
+    console.log(pets);
     const grid = document.getElementById('petsGrid');
 
     grid.innerHTML = '';
@@ -15,7 +14,7 @@ export async function renderPetGallery() {
     pets.forEach(pet => {
         const card = document.createElement('div');
         card.className = 'pet-card';
-        card.onclick = () => openPetModal(pet.name);
+        card.onclick = () => openPetModal(pet.id);
         console.log(pet.name);
 
         card.innerHTML = `
@@ -30,8 +29,8 @@ export async function renderPetGallery() {
     });
 }
 
-async function openPetModal(petName) {
-    console.log('Opening modal for:', petName);
+async function openPetModal(petId) {
+    console.log('Opening modal for:', petId);
     
     let modal = document.getElementById('petModal');
     
@@ -50,7 +49,8 @@ async function openPetModal(petName) {
     const modalPetStatus = document.getElementById('modalPetStatus');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const currentUser = userManager.getUser(); 
-    const pet = await petManager.getPetByName(electronAPI, currentUser.username, petName);
+    const pet = await petManager.getPetById(electronAPI, petId);
+    
 
     console.log(pet)
 

@@ -23,10 +23,10 @@ export function beingTouchedLI(pet) {
     return pet;
 }
 
-export function sleep(pet) {
-    pet.hp = Math.min(pet.hp + 0.5, 100);
-    return pet;
-}
+// export function sleep(pet) {
+//     pet.hp = Math.min(pet.hp + 0.5, 100);
+//     return pet;
+// }
 
 export function getBored(pet) {
     pet.intimacy = Math.max(pet.intimacy - 0.05, 0);

@@ -57,7 +57,6 @@ route.post('/register', async (req, res) => {
 route.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-
         //validation
         if (!username || !password) {
             return res.status(400).json({ message: 'Username and password are required' });
@@ -87,6 +86,7 @@ route.post('/login', async (req, res) => {
     }
 });
 
+//no use yet
 route.post('/refresh', authMiddleware, (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

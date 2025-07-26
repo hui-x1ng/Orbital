@@ -5,16 +5,24 @@ import * as behaviors from '../../modules/petBehaviors.js';
 
 export async function main() {
 
+    const errorMessage = document.getElementById("errorMessage");
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+
+    function hideError() {
+        errorMessage.style.display = 'none';
+    }
+
+    hideError();
 
     let intInterval = null;
     const electronAPI = window.electronAPI;
-    const user = userManager.getUser();
     let currentPet = null;
-    if (!user) {
-        window.location.href = './pages/login.html';
-        return;
-    }
-
+    const user = {username: 'a'};
+    user.username = sessionStorage.getItem("username");
     const userDisplay = document.getElementById('userDisplay');
     if (userDisplay) {
         userDisplay.textContent = user.username;
@@ -36,7 +44,6 @@ export async function main() {
             uiManager.hidePetNameInput();
             uiManager.renderPet(currentPet);
             startIntimacyLoop();
-            console.log('incremented from home page');
             userManager.incrementAchievementProgress('firstPet')
         } catch(err) {
             console.error('pet failed to generate: ' + err);
@@ -60,7 +67,7 @@ export async function main() {
                     console.error('No user logged in.');
                     return;
                 }
-                const loadedPet = await petManager.loadPet(electronAPI, user.username);
+                const loadedPet = await petManager.loadPet(electronAPI);
                 if (loadedPet) {
                     currentPet = loadedPet;
                     setTimeout(() => {
@@ -69,6 +76,7 @@ export async function main() {
                     uiManager.renderPet(currentPet);
                     startIntimacyLoop();
                 } else {
+                    showError("You don't have a pet yet!")
                     console.error("You don't have a pet yet!");
                 }
             } catch (err) {
@@ -80,7 +88,7 @@ export async function main() {
     document.getElementById('feed-btn').addEventListener('click', async () => {
         try{
             const updated = behaviors.feed(currentPet);
-            await electronAPI.updatePetStats(updated);
+            await petManager.updateStats(electronAPI, updated);
             window.electronAPI.signalPetAnimation('feed');
             uiManager.renderPet(await currentPet);
         } catch (err) {
@@ -95,7 +103,7 @@ export async function main() {
         electronAPI.killPet(currentPet.id);
         currentPet = null;
         uiManager.hidePet();
-        // console.log(pet.name + " died.");
+        showError("You just killed your pet...")
     });
 
     // Listen for AI chat events to update intimacy

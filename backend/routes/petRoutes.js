@@ -18,6 +18,20 @@ router.get('/', authMiddleware, (req, res) => {
     }
 });
 
+//get specific pet by id
+router.get('/:id', authMiddleware, (req, res) => {
+    try {
+        const petId = parseInt(req.params.id);
+        const pet = sqlite.getPetById(petId);
+        res.json({
+            pet
+        });
+    } catch (err) {
+        console.error('Error fetching pet:', err);
+        res.status(500).json({ error: 'Failed to fetch pet' });
+    }
+});
+
 // Create new pet
 router.post('/', authMiddleware, (req, res) => {
     try {

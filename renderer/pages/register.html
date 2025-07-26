@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>tamaCodechi - Register</title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div id="registerWrapper" class="centered-container">
+        <div id="registerContainer" class="card">
+            <h2>Create Your tamaCodechi Account</h2>
+            <input type="text" id="username" placeholder="choose a username" />
+            <input type="password" id="password" placeholder="create a password" />
+            <input type="password" id="confirmPassword" placeholder="confirm password" />
+            <div id="errorMessage" style="color: red; font-size: 14px; margin: 10px 0; display: none;"></div>
+            <button type="button" id="registerBtn">Register</button>
+            <p>Already have an account? <a href="./login.html" id="loginLink">Login here</a></p>
+        </div>
+        </div>
+        <script type="module" src="../script/register.js"></script>
+    </body>
+</html>

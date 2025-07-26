@@ -9,9 +9,11 @@
         <div id="loginWrapper" class="centered-container">
         <div id="loginContainer" class="card">
             <h2>Welcome to tamaCodechi</h2>
-            <input type="text" id="username" placeholder="enter anything" />
-            <input type="password" id="password" placeholder="password is petlover" />
+            <input type="text" id="username" placeholder="Enter your username here" />
+            <input type="password" id="password" placeholder="Enter your password here" />
+            <div id="errorMessage" style="color: red; font-size: 14px; margin: 10px 0; display: none;"></div>
             <button id="loginBtn">Login</button>
+            <p>Don't have an account? <a href="./register.html" id="registerLink">Register now</a></p>
         </div>
         </div>
         <script type="module" src="../script/login.js"></script>

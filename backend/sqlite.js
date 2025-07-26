@@ -123,7 +123,7 @@ function deletePet(petId) {
 
 function killPet(petId) {
   const stmt = db.prepare('UPDATE pets SET is_dead = true WHERE id = ? AND is_dead = false');
-  stmt.run(petId);
+  return stmt.run(petId);
 }
 
 //achievements
@@ -180,24 +180,26 @@ function insertAllAchievements() {
 }
 
 function initializeAchievementProgress(userId, achievementId) {
-  console.log(userId);
-  console.log(achievementId);
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO user_achievement_progress (user_id, achievement_id, current_progress, target)
+        INSERT OR IGNORE INTO user_achievement_progress (user_id, achievement_id, current_progress, target)
     SELECT ?, ?, 0, achievements.target 
     FROM achievements 
     WHERE id = ?
   `);
-  stmt.run(userId, achievementId, achievementId);
+  const result = stmt.run(userId, achievementId, achievementId);
+  return result.changes; // 1 if inserted, 0 if already existed
 }
 
-//returns whether youve completeed the achivement or not
-function incrementAchievementProgress(userId, achievementId, amount = 1) {
+//returns whether youve completeed the achivement or not, true or false
+async function incrementAchievementProgress(userId, achievementId, amount = 1) {
   if (checkAchievementCompletion(userId, achievementId)) {
     return true;
   }
   //ensures record for this achivement exists
-  initializeAchievementProgress(userId, achievementId);
+  const changes = await initializeAchievementProgress(userId, achievementId);
+  if (changes === 0) {
+    console.warn('Row already existed or insert was ignored.');
+  }
 
   const debugRow = db.prepare(`
     SELECT * FROM user_achievement_progress 
@@ -214,8 +216,17 @@ function incrementAchievementProgress(userId, achievementId, amount = 1) {
     WHERE user_id = ? AND achievement_id = ?
   `);
   stmt.run(amount, userId, achievementId);
-  
-  return checkAchievementCompletion(userId, achievementId);
+
+  const updatedRow = db.prepare(`
+    SELECT current_progress, target FROM user_achievement_progress 
+    WHERE user_id = ? AND achievement_id = ?
+  `).get(userId, achievementId);
+
+  if (updatedRow && updatedRow.current_progress >= updatedRow.target) {
+    grantAchievement(userId, achievementId);
+    return true;
+  }
+  return false;  
 }
 
 function checkAchievementCompletion(userId, achievementId) {

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 require('./ipcHandlers');
+const tokenStore = require('./tokenStore');
 
 let mainWindow, petWindow;
 const { startServer, stopServer } = require('./diagnosticServer');
@@ -23,7 +24,11 @@ function createWindow() {
         },
         autoHideMenuBar: true
     });
-    mainWindow.loadFile('./renderer/index.html');
+    if (!tokenStore.getToken()) {
+      mainWindow.loadFile('./renderer/pages/login.html');
+    } else {
+      mainWindow.loadFile('./renderer/index.html');
+    }
     // mainWindow.loadFile('renderer/pet/pet.html');
     mainWindow.webContents.openDevTools();
 }
@@ -89,6 +94,15 @@ ipcMain.on('open-pet-window', () => {
     if (petWindow && petWindow.webContents) {
       petWindow.webContents.send('perform-pet-action', action);
     }
+});
+
+// IPC handler for toggling server
+ipcMain.on('server-toggle', (event, isOn) => {
+  if (isOn) {
+    startServer(8080, petWindow, mainWindow);
+  } else {
+    stopServer();
+  }
 });
 
 app.whenReady().then(() => {

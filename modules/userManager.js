@@ -1,19 +1,19 @@
 let currentUser = null;
-const electronAPI = window.electronAPI;
 
-//login user to db
+//returns success or not and the username if success
 export async function login(username, password) {
-    if (!username || !password) throw new Error("Username or password missing");
+    const electronAPI = window.electronAPI;
+    const response = await electronAPI.loginUser({ username, password });
+    // saveUserState(currentUser);
+    return response;
 
-    if (password !== 'petlover') throw new Error("Incorrect password");
+}
 
-    await window.electronAPI.registerUser({ username, pw: password });
-    currentUser = {
-        username
-    };
-    saveUserState(currentUser);
-    return currentUser;
-
+export async function register(username, password) {
+    const electronAPI = window.electronAPI;
+    const response = await electronAPI.registerUser({ username, password });
+    console.log(response);
+    return response.success;
 }
 
 export function logout() {
@@ -45,10 +45,10 @@ export function clearUser() {
 }
 
 export async function getUserAchievements() {
-    const username = getUser() ? getUser().username : null;
-    const achievements = await electronAPI.getAchievementsByName(username);
-    console.log(achievements);
-    return achievements
+    const electronAPI = window.electronAPI;
+    const achievements = await electronAPI.getAchievementsByName();
+    console.log(achievements.achievements);
+    return achievements.achievements
 }
 
 export function grantAchievement(achievementId) {
@@ -67,11 +67,12 @@ function showAchievementPopup(achievementId) {
   alert(`Achievement unlocked: ${achievementId}`);
   }
 
-export function incrementAchievementProgress(achievement_id) {
-    const username = getUser() ? getUser().username : null;
-    if (!username) return;
+export async function incrementAchievementProgress(achievement_id) {
+    const electronAPI = window.electronAPI;
     console.log('pet number should be incremented')
-    if (electronAPI.incrementAchievementProgress(username, achievement_id)) {
-        showAchievementPopup();
+    const amount = 1;
+    const response = await electronAPI.incrementAchievementProgress(achievement_id, amount);
+    if (response.completed) {
+        showAchievementPopup(achievement_id);
     }
 }

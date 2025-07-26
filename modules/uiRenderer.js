@@ -1,4 +1,9 @@
+electronAPI.onPetData((pet) => {
+  renderPet(pet);
+});
+
 export function renderPet(pet) {
+
     document.getElementById('petDisplay').classList.remove('hidden');
     document.getElementById('pet-name').textContent = pet.name;
     document.getElementById('pet-hp').textContent = `HP: ${pet.hp}`;
