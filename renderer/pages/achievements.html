@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Achievements - tamaCodechi</title>
+</head>
+<body>
+    <h1>Achievements</h1>
+    <div id="achievements-list">
+        <div class="achievements-grid" id="achievementsGrid">
+            <!-- Achievement cards will be dynamically loaded here -->
+        </div>
+
+        <!-- Achievement Modal -->
+        <div id="achievementModal" class="modal hidden">
+            <div class="modal-content">
+                <span id="closeModalBtn" class="close-btn">&times;</span>
+                <div id="modalAchievementIcon" class="modal-achievement-icon"></div>
+                <h2 id="modalAchievementName" class="modal-achievement-name"></h2>
+                <p id="modalAchievementDetails" class="modal-achievement-details"></p>
+                <div id="modalAchievementDateTime" class="modal-achievement-datetime"></div>
+                <div id="modalAchievementProgress" class="modal-achievement-progress"></div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="refreshAchievementsBtn">Refresh Achievements</button>
+        </div>
+    </div>
+
+    <style>
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .achievement-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .achievement-card.completed {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+        
+        .achievement-card.locked {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+        }
+        
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .achievement-name {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            background: #00bcd4;
+            height: 6px;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            color: white;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal:not(.hidden) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #ff6b6b;
+        }
+        
+        .modal-achievement-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-achievement-name {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .modal-achievement-details {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .modal-achievement-datetime {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-achievement-progress {
+            margin-top: 15px;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        .action-buttons button {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .action-buttons button:hover {
+            background: #0097a7;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</body>
+</html>
