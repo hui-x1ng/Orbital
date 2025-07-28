@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>tamaCodechi</title>
+        <link rel="stylesheet" href="style.css">
+        <!-- 修复CSP警告 -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' file:;">
+    </head>
+    <body>
+        <div id="app" class="centered-container">
+
+            <div id="overlay" class="hidden"></div>
+            
+
+            <button id="toggleSidebarBtn" class="hidden">Menu</button>
+
+
+            <div id="sidebarContainer" class="hidden">
+                <aside id="sidebar">
+                    <div class="sidebar-header">
+                        <h3>tamaCodechi</h3>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <button data-page="home" class="nav-button">
+                            <span class="nav-icon">🏠</span>
+                            <span class="nav-text">Home</span>
+                        </button>
+                        <button data-page="allPets" class="nav-button">
+                            <span class="nav-icon">🐾</span>
+                            <span class="nav-text">All Pets</span>
+                        </button>
+                        <button data-page="achievements" class="nav-button">
+                            <span class="nav-icon">🏆</span>
+                            <span class="nav-text">Achievements</span>
+                        </button>
+                        <button data-page="settings" class="nav-button">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-text">Settings</span>
+                        </button>
+                    </nav>
+                </aside>
+            </div>
+
+
+            <div id="mainContainer" class="card hidden">
+
+                <h1>Hello <span id="userDisplay"></span></h1>
+                <div class="welcome-section">
+                    <p>Welcome to tamaCodechi! Take care of your virtual coding companion.</p>
+                </div>
+                
+                <div class="action-section">
+                    <button id="generatePetBtn" class="primary-button">Generate Your Pet</button>
+                    
+                    <div id="petNameContainer" class="hidden input-group">
+                        <input id="petNameInput" placeholder="Enter pet name" class="pet-name-input" />
+                        <div class="button-group">
+                            <button id="confirmPetNameBtn" class="confirm-button">OK</button>
+                            <button id="cancelPetNameBtn" class="cancel-button">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <button id="callPetBtn" class="secondary-button">Call Out Your Pet!</button>
+                </div>
+                
+                <div id="errorMessage" class="error-message hidden"></div>
+                
+                <div id="petDisplay" class="hidden pet-info">
+                    <div class="pet-header">
+                        <h3 id="pet-name">Your Pet</h3>
+                    </div>
+                    
+                    <div class="pet-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">HP:</span>
+                            <span id="pet-hp" class="stat-value">100</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Intimacy:</span>
+                            <span id="pet-intimacy" class="stat-value">50</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pet-interaction">
+                        <p class="interaction-hint">Try touching your pet</p>
+                        <div class="action-buttons">
+                            <button id="feed-btn" class="action-button feed">Feed</button>
+                            <button id="killPetBtn" class="action-button danger">Kill Pet</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script type="module">
+            import { main } from './script/home.js';
+            import { setUpSidebar } from './script/sidebar.js';
+            
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                console.log('[index.html] DOM loaded, initializing app');
+                
+                try {
+
+                    setUpSidebar();
+                    
+
+                    await main();
+                    
+                    console.log('[index.html] App initialization complete');
+                } catch (error) {
+                    console.error('[index.html] App initialization failed:', error);
+                    
+
+                    const mainContainer = document.getElementById('mainContainer');
+                    if (mainContainer) {
+                        mainContainer.innerHTML = `
+                            <div style="text-align: center; color: #ff6b6b; padding: 50px;">
+                                <h2>Application Error</h2>
+                                <p>Failed to initialize the application.</p>
+                                <p><small>${error.message}</small></p>
+                                <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #00bcd4; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    Reload
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            });
+        </script>
+
+        <style>
+            /* 侧边栏基础样式 */
+            #sidebarContainer {
+                position: fixed;
+                top: 0;
+                left: -280px; /* 初始位置在屏幕外 */
+                width: 280px;
+                height: 100vh;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+                transition: left 0.3s ease;
+                z-index: 1000;
+            }
+
+            #sidebarContainer.active {
+                left: 0; /* 显示时移动到可见位置 */
+            }
+
+            #toggleSidebarBtn {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                padding: 10px 15px;
+                background: #00bcd4;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            #toggleSidebarBtn:hover {
+                background: #0097a7;
+            }
+
+            #toggleSidebarBtn.moved {
+                left: 300px; /* 侧边栏打开时移动按钮位置 */
+            }
+
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            #overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            #mainContainer.shifted {
+                transform: translateX(280px);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar-header {
+                padding: 20px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                margin-bottom: 20px;
+            }
+            
+            .sidebar-header h3 {
+                color: white;
+                margin: 0;
+                font-size: 18px;
+            }
+            
+            .sidebar-nav {
+                padding: 0 10px;
+            }
+            
+            .nav-button {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                padding: 12px 15px;
+                margin-bottom: 8px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 8px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: left;
+            }
+            
+            .nav-button:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateX(5px);
+            }
+            
+            .nav-icon {
+                margin-right: 12px;
+                font-size: 16px;
+            }
+            
+            .nav-text {
+                font-size: 14px;
+            }
+            
+
+            .welcome-section {
+                text-align: center;
+                margin: 20px 0 30px 0;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+            }
+            
+            .welcome-section p {
+                color: rgba(255, 255, 255, 0.8);
+                margin: 0;
+                line-height: 1.5;
+            }
+            
+            .action-section {
+                margin: 30px 0;
+                text-align: center;
+            }
+            
+            .primary-button, .secondary-button {
+                display: inline-block;
+                padding: 12px 24px;
+                margin: 8px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .primary-button {
+                background: #00bcd4;
+                color: white;
+            }
+            
+            .primary-button:hover {
+                background: #0097a7;
+                transform: translateY(-2px);
+            }
+            
+            .secondary-button {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .secondary-button:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .input-group {
+                margin: 20px 0;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+            }
+            
+            .pet-name-input {
+                width: 100%;
+                max-width: 300px;
+                padding: 12px;
+                margin-bottom: 15px;
+                border: none;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                font-size: 16px;
+                text-align: center;
+            }
+            
+            .pet-name-input::placeholder {
+                color: rgba(255, 255, 255, 0.6);
+            }
+            
+            .button-group {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+            }
+            
+            .confirm-button, .cancel-button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+            
+            .confirm-button {
+                background: #4caf50;
+                color: white;
+            }
+            
+            .cancel-button {
+                background: #f44336;
+                color: white;
+            }
+            
+            .error-message {
+                color: #ff6b6b;
+                font-size: 14px;
+                margin: 15px 0;
+                padding: 10px;
+                background: rgba(244, 67, 54, 0.1);
+                border-radius: 6px;
+                border-left: 3px solid #ff6b6b;
+            }
+            
+            .pet-info {
+                margin-top: 30px;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .pet-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .pet-stats {
+                display: flex;
+                justify-content: space-around;
+                margin: 20px 0;
+            }
+            
+            .stat-item {
+                text-align: center;
+            }
+            
+            .stat-label {
+                display: block;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            
+            .stat-value {
+                display: block;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            
+            .pet-interaction {
+                text-align: center;
+                margin-top: 20px;
+            }
+            
+            .interaction-hint {
+                color: rgba(255, 255, 255, 0.6);
+                font-style: italic;
+                margin-bottom: 15px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .action-button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            }
+            
+            .action-button.feed {
+                background: #4caf50;
+                color: white;
+            }
+            
+            .action-button.feed:hover {
+                background: #45a049;
+            }
+            
+            .action-button.danger {
+                background: #f44336;
+                color: white;
+            }
+            
+            .action-button.danger:hover {
+                background: #da190b;
+            }
+            
+
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </body>
+</html>

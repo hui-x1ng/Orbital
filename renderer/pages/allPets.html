@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Gallery - tamaCodechi</title>
+</head>
+<body>
+    <h1>Pet Gallery</h1>
+
+    <div class="pets-grid" id="petsGrid">
+        <!-- Pet cards will be dynamically loaded here -->
+    </div>
+
+    <!-- Pet Modal -->
+    <div id="petModal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn">&times;</span>
+            <div class="pet-avatar" id="modalPetAvatar">🐱</div>
+            <h2 id="modalPetName">Name: </h2>
+            <div class="pet-stats">
+                <p id="modalPetHP">HP: </p>
+                <p id="modalPetAge">Age: </p>
+                <p id="modalPetIntimacy">Intimacy: </p>
+                <p id="modalPetStatus">Status: </p>
+                <p id="modalPetCreated">Created: </p>
+            </div>
+            <div class="pet-actions" id="modalPetActions">
+                <!-- Action buttons will be added here for living pets -->
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button id="refreshPetsBtn">Refresh Pet Gallery</button>
+    </div>
+
+    <style>
+        .pets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .pet-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pet-card.alive {
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+        
+        .pet-card.dead {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: rgba(244, 67, 54, 0.5);
+            opacity: 0.8;
+        }
+        
+        .pet-avatar {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .pet-card.dead .pet-avatar {
+            filter: grayscale(100%);
+            opacity: 0.6;
+        }
+        
+        .pet-name {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .pet-stats {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .pet-stats p {
+            margin: 5px 0;
+        }
+        
+        .pet-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .pet-status.alive {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+        
+        .pet-status.dead {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        
+        .hp-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 2px;
+            margin: 5px 0;
+        }
+        
+        .hp-fill {
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            height: 6px;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .hp-fill.low {
+            background: linear-gradient(90deg, #ff9800, #ff5722);
+        }
+        
+        .hp-fill.critical {
+            background: linear-gradient(90deg, #f44336, #d32f2f);
+        }
+        
+        .intimacy-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 2px;
+            margin: 5px 0;
+        }
+        
+        .intimacy-fill {
+            background: linear-gradient(90deg, #e91e63, #f06292);
+            height: 6px;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal:not(.hidden) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #ff6b6b;
+        }
+        
+        .modal .pet-avatar {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .modal h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .modal .pet-stats {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        
+        .pet-actions {
+            margin-top: 20px;
+        }
+        
+        .pet-actions button {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .pet-actions button:hover {
+            background: #0097a7;
+        }
+        
+        .pet-actions button.danger {
+            background: #f44336;
+        }
+        
+        .pet-actions button.danger:hover {
+            background: #d32f2f;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        .action-buttons button {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .action-buttons button:hover {
+            background: #0097a7;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</body>
+</html>

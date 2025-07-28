@@ -1,0 +1,74 @@
+{
+  "name": "tamacodechi",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "build": "electron-builder",
+    "postinstall": "npm run install-lsp-servers",
+    "install-lsp-servers": "npm install -g typescript-language-server typescript || echo 'Warning: Failed to install global LSP servers, trying local install...' && npm install typescript-language-server typescript",
+    "dev": "electron . --dev",
+    "clean": "rm -rf node_modules package-lock.json && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "builder": "^5.0.0",
+    "electron": "^36.3.2",
+    "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.2.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pixi.js": "^8.10.1",
+    "ws": "^8.18.3",
+    "chokidar": "^3.5.3",
+    "typescript-language-server": "^3.3.2",
+    "typescript": "^5.0.0"
+  },
+  "optionalDependencies": {
+    "python-language-server": "^0.36.2"
+  },
+  "build": {
+    "appId": "com.tamacodechi.app",
+    "productName": "Tamacodechi",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/typescript/lib/**/*",
+      "electron/src/lsp/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/typescript-language-server",
+        "to": "app/node_modules/typescript-language-server"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
