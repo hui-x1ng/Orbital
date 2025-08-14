@@ -1,3 +1,4 @@
 node_modules/
 dist/*.zip
 dist/win-unpacked/*.exe
+dist/win-unpacked/resources/app.asar
